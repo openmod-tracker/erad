@@ -1,0 +1,24 @@
+from infrasys.base_quantity import BaseQuantity, ureg
+
+class Speed(BaseQuantity):
+    """Quantity representing speed"""
+
+    __base_unit__ = "m/second"
+
+class Acceleration(BaseQuantity):
+    """Quantity representing acceleration."""
+
+    __base_unit__ = "m/second**2"
+
+class Temperature(BaseQuantity):
+
+    __base_unit__ = "degC"
+
+
+class Pressure(BaseQuantity):
+
+    __base_unit__ = "millibar"
+
+class Flow(BaseQuantity):
+
+    __base_unit__ = "feet**3/second"

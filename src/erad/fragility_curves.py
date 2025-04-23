@@ -1,0 +1,350 @@
+from gdm.quantities import Distance
+
+from erad.quantities import Speed, Acceleration
+import erad.models.fragility_curve as frag
+from erad.enums import AssetTypes
+
+DEFAULT_FRAGILTY_CURVES = [
+    frag.HazardFragilityCurves(
+        asset_state_param='peak_ground_velocity',
+        curves=[
+            frag.FragilityCurve(
+                asset_type=AssetTypes.battery_storage,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(35, "cm/s"), 0.5]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(35, "cm/s"), 0.50]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(40, "cm/s"), 0.50]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_poles,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(40, "cm/s"), 0.40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(60, "cm/s"), 0.50]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.solar_panels,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(35, "cm/s"), 0.50]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.substation,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(50, "cm/s"), 0.45]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_mad_mount,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(35, "cm/s"), 0.50]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_overhead,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(40, "cm/s"), 0.50]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(50, "cm/s"), 0.5]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(45, "cm/s"), 0.55]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_tower,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(35, "cm/s"), 0.4]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(65, "cm/s"), 0.55]),
+            ),
+        ]
+    ),
+    frag.HazardFragilityCurves(
+        asset_state_param='peak_ground_acceleration',
+        curves=[
+            frag.FragilityCurve(
+                asset_type=AssetTypes.battery_storage,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.40 * 9.81, 'm/s**2'), 0.80]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.45 * 9.81, 'm/s**2'), 0.50]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.50 * 9.81, 'm/s**2'), 0.55]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_poles,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.40 * 9.81, 'm/s**2'), 0.6]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(1.0 * 9.81, 'm/s**2'), 0.8]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.solar_panels,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.45 * 9.81, 'm/s**2'), 0.45]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.substation,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.40 * 9.81, 'm/s**2'), 0.5]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_mad_mount,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.40 * 9.81, 'm/s**2'), 0.6]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_overhead,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.50 * 9.81, 'm/s**2'), 0.70]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.50 * 9.81, 'm/s**2'), 0.50]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.60 * 9.81, 'm/s**2'), 0.60]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_tower,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.35 * 9.81, 'm/s**2'), 0.40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Acceleration(0.80 * 9.81, 'm/s**2'), 0.55]),
+            ),
+        ]
+    ),
+    frag.HazardFragilityCurves(
+        asset_state_param='wind_speed',
+        curves=[
+            frag.FragilityCurve(
+                asset_type=AssetTypes.battery_storage,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(50, "m/s"), 0.45]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(50, "m/s"), 0.4]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(45, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_poles,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(45, "m/s"), 0.4]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(55, "m/s"), 0.4]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.solar_panels,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(55, "m/s"), 0.3]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.substation,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(55, "m/s"), .40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_mad_mount,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(50, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_overhead,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(45, "m/s"), 0.30]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(55, "m/s"), 0.54]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(50, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_tower,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(55, "m/s"), 0.40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(60, "m/s"), 0.40]),
+            ),
+        ]
+    ),
+    frag.HazardFragilityCurves(
+        asset_state_param='flood_velocity',
+        curves=[
+            frag.FragilityCurve(
+                asset_type=AssetTypes.battery_storage,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(1.5, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(2.0, "m/s"), 0.40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(3.5, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_poles,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(3.0, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(2.0, "m/s"), 0.4]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.solar_panels,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(2.0, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.substation,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(2.0, "m/s"), 0.4 ]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_mad_mount,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(1.5, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_overhead,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(2.5, "m/s"), 0.30]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(1.5, "m/s"), 0.4]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(3.5, "m/s"), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_tower,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(3.0, "m/s"), 0.40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Speed(2.0, "m/s"), 0.4]),
+            ),
+        ]
+    ),
+    frag.HazardFragilityCurves(
+        asset_state_param='flood_depth',
+        curves=[
+            frag.FragilityCurve(
+                asset_type=AssetTypes.battery_storage,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(0.50, 'm'), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(1.0, 'm'), 0.40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(1.0, 'm'), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_poles,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(1.0, 'm'), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(1.0, 'm'), 0.8]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.solar_panels,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(0.6, 'm'), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.substation,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(1.0, 'm'), 0.4]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_mad_mount,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(0.6, 'm'), 0.35]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_overhead,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(0.8, 'm'), 0.3]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(1.0, 'm'), 0.40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(1.8, 'm'), 0.3]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_tower,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(2.2, 'm'), 0.40]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "lognorm", parameters = [Distance(0.8, 'm'), 0.25]),
+            ),
+        ]
+    ),
+    frag.HazardFragilityCurves(
+        asset_state_param='fire_boundary_dist',
+        curves=[
+            frag.FragilityCurve(
+                asset_type=AssetTypes.battery_storage,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.65, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.5, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.5, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_poles,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(1.0, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.distribution_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.1, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.solar_panels,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.55, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.substation,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.7, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_mad_mount,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.9, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transformers_overhead,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(1.0, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_junction_box,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.55, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_overhead_lines,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(1.1, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_tower,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.7, "km"), 0.95]),
+            ),
+            frag.FragilityCurve(
+                asset_type=AssetTypes.transmission_underground_cables,
+                prob_function=frag.ProbabilityFunction(distribution = "expon", parameters = [Distance(0.15, "km"), 0.95]),
+            ),
+        ]
+    )
+]
