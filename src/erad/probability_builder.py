@@ -1,5 +1,4 @@
 from infrasys import BaseQuantity  
-import matplotlib.pyplot as plt
 import scipy.stats as stats
 import numpy as np
 
@@ -26,14 +25,6 @@ class ProbabilityFunctionBuilder:
         """Sample the distribution """
         return self.quantity(self.dist.rvs(*self.params, size=1)[0], self.units)
 
-    def plot_cdf(self, x:np.linspace, ax =None, label="") -> None:
-        """Plot the cumalative distribution fuction"""
-        cdf = self.dist.cdf
-        if ax is None:
-            plt.plot(x,cdf(x, *self.params), label=label)
-        else:
-            ax.plot(x,cdf(x, *self.params), label=label)
-    
 
     def probability(self, value: BaseQuantity) -> float:
         """Calculates survival probability of a given asset.

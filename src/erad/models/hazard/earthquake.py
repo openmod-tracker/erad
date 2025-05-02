@@ -33,7 +33,7 @@ class EarthQuakeModel(BaseDisasterModel):
             name = 'earthquake 1',
             timestamp=datetime.now(),
             origin=Point(-120.93036, 36.60144),
-            depth=Distance(20, "km"),
+            depth=Distance(300, "km"),
             magnitude=5.0,
         )
     

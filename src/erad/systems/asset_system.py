@@ -81,7 +81,8 @@ class AssetSystem(System):
     def _maps_buses(asset_dict: dict[AssetTypes: list[gdc.DistributionComponentBase]], dist_system:DistributionSystem):
         for bus in dist_system.get_components(gdc.DistributionBus):
             asset_type =  AssetSystem._get_bus_type(bus, asset_dict, dist_system)
-            asset_dict[asset_type].append(bus)
+            if asset_type:
+                asset_dict[asset_type].append(bus)
 
     @staticmethod
     def _map_transsformers(asset_dict: dict[AssetTypes: list[gdc.DistributionComponentBase]], dist_system:DistributionSystem):
@@ -107,5 +108,6 @@ class AssetSystem(System):
                 connected_types.append(AssetTypes.distribution_junction_box) 
             else:
                 ...
-        counter = Counter(connected_types)
-        return counter.most_common(1)[0][0]
+        if connected_types:
+            counter = Counter(connected_types)
+            return counter.most_common(1)[0][0]

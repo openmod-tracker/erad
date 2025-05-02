@@ -35,33 +35,13 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
 ]
 dependencies = [
-    "boto3",
-    "botocore",
-    "ditto.py",
-    "geojson",
+    "grid-data-models",
     "geopandas",
     "geopy",
-    "graphdatascience",
-    "jupyter",
-    "matplotlib",
-    "neo4j-driver",
-    "networkx",
-    "OpenDSSDirect.py",
     "pandas",
-    "plotly",
-    "pydantic~=1.10.14",
-    "pytest",
-    "python-dotenv",
-    "pyyaml",
-    "rasterio",
     "requests",
     "scipy",
     "shapely",
-    "stateplane",
-    "xmltodict",
-    "lxml",
-    "html5lib",
-    "pyhigh"
 ]
 
 [project.optional-dependencies]
