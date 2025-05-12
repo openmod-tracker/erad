@@ -6,8 +6,8 @@ from pydantic import computed_field, Field
 from infrasys.quantities import Distance
 from geopy.distance import geodesic
 from shapely.geometry import Point
+from pyhigh import get_elevation
 from infrasys import Component
-from rich import print
 
 from erad.quantities import Acceleration, Speed
 from erad.models.probability import (
@@ -122,11 +122,11 @@ class AssetState(Component):
             survival_probability=1,
         )
 
-    def calculate_flood_vectors(self, asset_coordinate: Point, hazard_model: hz.FloodModel):
+    def calculate_flood_vectors(self, asset_coordinate: Point, hazard_model: hz.FloodModel, asset_total_elevation: Distance):
         for area in hazard_model.affected_areas:
             if area.affected_area.contains(asset_coordinate):
                 self.flood_depth = DistanceProbability(
-                    distance=area.water_depth,
+                    distance=area.water_elevation-asset_total_elevation,
                     survival_probability=1,
                 )
                 self.flood_velocity = SpeedProbability(
@@ -181,6 +181,14 @@ class Asset(Component):
     longitude: float = Field(..., ge=-180, le=180, description="Longitude in degrees")
     asset_state: list[AssetState]
 
+    @computed_field
+    @property
+    def elevation(self) -> Distance:
+        return Distance(
+            get_elevation(lat=self.latitude, lon=self.longitude),
+            "meter"
+        )
+
     def _get_asset_state_at_timestamp(self, timestamp: datetime) -> AssetState | None:
         for asset_state in self.asset_state:
             if asset_state.timestamp == timestamp:
@@ -200,7 +208,7 @@ class Asset(Component):
         elif isinstance(hazard_model, hz.WindModel):
             asset_state.calculate_wind_vectors(asset_location, hazard_model)
         elif isinstance(hazard_model, hz.FloodModel):
-            asset_state.calculate_flood_vectors(asset_location, hazard_model)
+            asset_state.calculate_flood_vectors(asset_location, hazard_model, self.elevation+self.height)
         else:
             raise (f"Unsupported hazard type {hazard_model.__class__.__name__}")
 
@@ -220,7 +228,7 @@ class Asset(Component):
                 prob_inst = curve.prob_model
                 quantity_name = [l for l in list(prob_model.model_fields.keys()) if l not in ['uuid', 'name', 'survival_probability']][0]
                 quantity = getattr(prob_model, quantity_name)
-                prob_model.survival_probability = prob_inst.probability(quantity)
+                prob_model.survival_probability = 1 - prob_inst.probability(quantity)
     
     def get_vadid_curve(self, frag_curves, field: SyntaxError) -> float:
         for frag_curve in frag_curves:

@@ -1,0 +1,27 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: intro
+parts:
+  - caption: Installation
+    chapters:
+    - file: installation
+  - caption: Hazards
+    chapters:
+    - file: hazards/earthquake
+    - file: hazards/wildfire
+    - file: hazards/flood
+    - file: hazards/wind
+  - caption: Running Simulations
+    chapters:
+    - file: simulation/asset 
+    - file: simulation/systems
+    - file: simulation/running
+    - file: simulation/gdm
+    - file: simulation/fragility
+  - caption: Reference Guides
+    chapters:
+    - file: reference/api/index
+    - file: reference/citations
+

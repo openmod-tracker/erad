@@ -37,11 +37,12 @@ classifiers = [
 dependencies = [
     "grid-data-models",
     "geopandas",
-    "geopy",
-    "pandas",
     "requests",
-    "scipy",
     "shapely",
+    "pandas",
+    "pyhigh",
+    "geopy",
+    "scipy",
 ]
 
 [project.optional-dependencies]

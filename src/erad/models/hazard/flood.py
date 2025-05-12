@@ -12,7 +12,7 @@ class FloodModelArea(BaseDisasterModel):
     name : str = ''
     affected_area : Polygon
     water_velocity: Speed
-    water_depth : Distance
+    water_elevation : Distance
 
     @field_validator("affected_area", mode="before")
     def deserialize_polygon(cls, value):
@@ -39,7 +39,7 @@ class FloodModelArea(BaseDisasterModel):
                 ]
             ),
             water_velocity=Speed(50, "meter/second"),
-            water_depth=Distance(10, "feet"),
+            water_elevation=Distance(10, "feet"),
         )
 
 class FloodModel(BaseDisasterModel):

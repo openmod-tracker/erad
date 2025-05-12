@@ -2,7 +2,6 @@ from datetime import datetime
 
 from gdm.distribution import DistributionSystem
 from loguru import logger
-from rich import print
 
 from erad.models.fragility_curve import HazardFragilityCurves
 from erad.fragility_curves import DEFAULT_FRAGILTY_CURVES
@@ -39,7 +38,6 @@ class HarzardSimulator:
 
         self.hazard_system = hazard_system
         self.timestamps = self._get_time_stamps()
-
         for timestamp in self.timestamps:
             for hazard_type in HAZARD_TYPES:
                 for hazard_model in self.hazard_system.get_components(hazard_type, filter_func=lambda x: x.timestamp == timestamp):

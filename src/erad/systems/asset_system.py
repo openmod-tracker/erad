@@ -1,11 +1,11 @@
 from collections import defaultdict, Counter
-from datetime import datetime
 
 from gdm.distribution import DistributionSystem
 import gdm.distribution.components as gdc
 from gdm.quantities import Distance
 from infrasys import System
-from rich import print
+import geopandas as gpd
+import pandas as pd
 
 from erad.gdm_mapping import asset_to_gdm_mapping
 from erad.constants import ASSET_TYPES
@@ -36,6 +36,55 @@ class AssetSystem(System):
         system.add_components(*list_of_assets)
         return system
 
+    def to_gdf(self)->gpd.GeoDataFrame:
+        """Create a geodataframe from an AssetSystem."""
+        node_data = defaultdict(list)
+        assets : list[Asset] = self.get_components(Asset)
+        for asset in assets:
+            if asset.asset_state:
+                for asset_state in asset.asset_state:
+                    node_data["name"].append(asset.name)
+                    node_data["type"].append(asset.asset_type.name)
+                    node_data["height"].append(asset.height.to("meter").magnitude)
+                    node_data["elevation"].append(asset.elevation.to("meter").magnitude)
+                    node_data["latitude"].append(asset.latitude)
+                    node_data["longitude"].append(asset.longitude)
+                    node_data["timestamp"].append(asset_state.timestamp)
+                    node_data["survival_prob"].append(asset_state.survival_probability)
+                    node_data["wind_speed"].append(asset_state.wind_speed)
+                    node_data["fire_boundary_dist"].append(asset_state.fire_boundary_dist)
+                    node_data["flood_depth"].append(asset_state.flood_depth)
+                    node_data["flood_velocity"].append(asset_state.flood_velocity)
+                    node_data["peak_ground_acceleration"].append(asset_state.peak_ground_acceleration)
+                    node_data["peak_ground_velocity"].append(asset_state.peak_ground_velocity)
+            else:
+                node_data["name"].append(asset.name)
+                node_data["type"].append(asset.asset_type.name)
+                node_data["height"].append(asset.height.to("meter").magnitude)
+                node_data["elevation"].append(asset.elevation.to("meter").magnitude)
+                node_data["latitude"].append(asset.latitude)
+                node_data["longitude"].append(asset.longitude)
+                node_data["timestamp"].append(None)
+                node_data["survival_prob"].append(None)
+                node_data["wind_speed"].append(None)
+                node_data["fire_boundary_dist"].append(None)
+                node_data["flood_depth"].append(None)
+                node_data["flood_velocity"].append(None)
+                node_data["peak_ground_acceleration"].append(None)
+                node_data["peak_ground_velocity"].append(None)
+        
+        nodes_df = pd.DataFrame(node_data)
+        gdf_nodes = gpd.GeoDataFrame(
+            nodes_df,
+            geometry=gpd.points_from_xy(nodes_df.longitude, nodes_df.latitude),
+            crs="EPSG:4326",
+        )
+        return gdf_nodes  
+
+    def to_geojson(self)-> str:
+        """Create a GeoJSON from an AssetSystem."""
+        gdf_nodes = self.to_gdf()
+        return gdf_nodes.to_json()
 
     @staticmethod
     def _build_assets(asset_map: dict[AssetTypes: list[gdc.DistributionComponentBase]]) -> list[Asset]:

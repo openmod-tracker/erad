@@ -5,6 +5,8 @@ __pycache__/
 .vscode/**
 .qodo/**
 .pytest_cache/**
+**/.DS_Store
+
 
 # C extensions
 *.so

@@ -7,7 +7,6 @@ from infrasys.quantities import Distance
 from shapely.geometry import Point
 import geopandas as gpd
 import pandas as pd
-from rich import print
 
 from erad.models.hazard.common import ERAD_DB, HISTROIC_HURRICANE_TABLE
 from erad.models.hazard.base_models import BaseDisasterModel
