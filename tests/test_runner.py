@@ -29,3 +29,15 @@ def test_wind_simulation():
 def test_flood_simulation():
     hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
     hazard_scenario.run(hazard_system=HazardSystem.flood_example())
+
+def test_sample():
+    hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
+    hazard_scenario.run(hazard_system=HazardSystem.earthquake_example())
+    tracked_changes = hazard_scenario.sample()
+    assert len(tracked_changes) == 1
+
+def test_samples():
+    hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
+    hazard_scenario.run(hazard_system=HazardSystem.earthquake_example())
+    tracked_changes = hazard_scenario.samples(number_of_samples = 100)
+    assert len(tracked_changes) == 81, f"{len(tracked_changes)}"
