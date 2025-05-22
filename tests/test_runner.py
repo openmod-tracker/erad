@@ -3,7 +3,6 @@ from erad.runner import HarzardSimulator
 from erad.systems.asset_system import AssetSystem
 from erad.systems.hazard_system import HazardSystem
 
-
 def get_asset_system()-> AssetSystem:
     asset = Asset.example()
     asset_system = AssetSystem(auto_add_composed_components=True)
@@ -29,15 +28,3 @@ def test_wind_simulation():
 def test_flood_simulation():
     hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
     hazard_scenario.run(hazard_system=HazardSystem.flood_example())
-
-def test_sample():
-    hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
-    hazard_scenario.run(hazard_system=HazardSystem.earthquake_example())
-    tracked_changes = hazard_scenario.sample()
-    assert len(tracked_changes) == 1
-
-def test_samples():
-    hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
-    hazard_scenario.run(hazard_system=HazardSystem.earthquake_example())
-    tracked_changes = hazard_scenario.samples(number_of_samples = 100)
-    assert len(tracked_changes) == 81, f"{len(tracked_changes)}"

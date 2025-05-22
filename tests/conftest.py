@@ -5,7 +5,7 @@ from gdmloader.source import SystemLoader
 
 import pytest
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def gdm_system():
     loader = SystemLoader()
     loader.add_source(GCS_CASE_SOURCE)
