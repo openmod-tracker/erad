@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "NREL-erad"
-version="0.0.1"
+version="0.0.2"
 description = "Graph based scalable tool for computing energy resilience metrics for distribution systems."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -35,7 +35,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
 ]
 dependencies = [
-    "grid-data-models",
+    "grid-data-models~=2.1.0",
     "geopandas",
     "requests",
     "shapely",

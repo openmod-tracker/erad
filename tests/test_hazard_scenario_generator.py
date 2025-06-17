@@ -25,11 +25,10 @@ def test_hazard_scenarios(gdm_system: DistributionSystem):
         tracked_changes = scenarios,
         scenario_name= list(scenario_names)[0]
     )
-
     n_asset_inservice_before = sum(
         [c.in_service for c in gdm_system.iter_all_components() if hasattr(c, 'in_service')]
     )
-    updated_gdm_system = apply_updates_to_system(scenario_0, gdm_system, gdm_system)
+    updated_gdm_system = apply_updates_to_system(scenario_0, gdm_system, None)
     n_asset_inservice_after = sum(
         [c.in_service for c in updated_gdm_system.iter_all_components() if hasattr(c, 'in_service')]
     )
