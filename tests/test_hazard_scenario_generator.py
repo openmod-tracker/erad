@@ -1,7 +1,6 @@
 
 from gdm.tracked_changes import filter_tracked_changes_by_name_and_date, apply_updates_to_system
 from gdm.distribution import DistributionSystem
-from rich import print
 
 from erad.runner import HazardScenarioGenerator
 from erad.systems.asset_system import AssetSystem
