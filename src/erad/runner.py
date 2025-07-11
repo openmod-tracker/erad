@@ -77,7 +77,7 @@ class HazardScenarioGenerator:
                     tracked_changes.append(
                         TrackedChange(
                             scenario_name=scenario_name,
-                            update_date=state.timestamp.date(),
+                            timestamp=state.timestamp,
                             edits=[
                                 PropertyEdit(
                                     component_uuid=asset.distribution_asset,
