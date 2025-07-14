@@ -23,5 +23,6 @@ FLOOD_HISTORIC_SHP_PATH = "FEMA_100_Year_Flood_Zones_in_the_US\\FEMA_100_Year_Fl
 ELEVATION_RASTER_FILE = "land_shallow_topo_west.tif"
 
 SMARTDS_VALID_YEARS = [2016, 2017, 2018]
+
 SMARTDS_VALID_AREAS = ['SFO', 'GSO', 'AUS']
 
