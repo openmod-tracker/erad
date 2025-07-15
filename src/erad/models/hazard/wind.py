@@ -1,8 +1,8 @@
 from datetime import datetime
 import sqlite3
-import os 
+import os
 
-from pydantic import field_serializer, field_validator 
+from pydantic import field_serializer, field_validator
 from infrasys.quantities import Distance
 from shapely.geometry import Point
 import geopandas as gpd
@@ -14,12 +14,12 @@ from erad.quantities import Speed, Pressure
 
 
 class WindModel(BaseDisasterModel):
-    timestamp : datetime
-    center : Point
-    max_wind_speed : Speed
-    radius_of_max_wind : Distance
-    radius_of_closest_isobar : Distance
-    air_pressure : Pressure
+    timestamp: datetime
+    center: Point
+    max_wind_speed: Speed
+    radius_of_max_wind: Distance
+    radius_of_closest_isobar: Distance
+    air_pressure: Pressure
 
     @field_validator("center", mode="before")
     def deserialize_point(cls, value):
@@ -28,14 +28,14 @@ class WindModel(BaseDisasterModel):
             return Point(coords)
         return value
 
-    @field_serializer('center')
+    @field_serializer("center")
     def serialize_location(self, point: Point, _info):
-        return {'type': 'Point', 'coordinates': (point.x, point.y)}
+        return {"type": "Point", "coordinates": (point.x, point.y)}
 
     @classmethod
     def example(cls) -> "WindModel":
         return WindModel(
-            name = 'hurricane 1',
+            name="hurricane 1",
             timestamp=datetime.now(),
             center=Point(-121.93036, 36.60144),
             max_wind_speed=Speed(50, "miles/hour"),
@@ -43,37 +43,53 @@ class WindModel(BaseDisasterModel):
             radius_of_max_wind=Distance(50, "miles"),
             radius_of_closest_isobar=Distance(300, "miles"),
         )
-    
+
     @classmethod
     def from_hurricane_sid(cls, hurricane_sid: str) -> list["WindModel"]:
         assert os.path.exists(ERAD_DB), f"The data file {ERAD_DB} not found"
         conn = sqlite3.connect(ERAD_DB)
-        hurricane_data = pd.read_sql(f"SELECT * FROM {HISTROIC_HURRICANE_TABLE} WHERE `SID ` = '{hurricane_sid}';", conn)
+        hurricane_data = pd.read_sql(
+            f"SELECT * FROM {HISTROIC_HURRICANE_TABLE} WHERE `SID ` = '{hurricane_sid}';", conn
+        )
         cols = [
-            'LAT (degrees_north)', 'LON (degrees_east)',  'USA_WIND (kts)', 'USA_ROCI (nmile)', 
-            'USA_RMW (nmile)', 'USA_POCI (mb)', 'ISO_TIME '
+            "LAT (degrees_north)",
+            "LON (degrees_east)",
+            "USA_WIND (kts)",
+            "USA_ROCI (nmile)",
+            "USA_RMW (nmile)",
+            "USA_POCI (mb)",
+            "ISO_TIME ",
         ]
         hurricane_data = hurricane_data[cols]
         for col in cols:
-            hurricane_data = hurricane_data[hurricane_data[col] != ' ']
+            hurricane_data = hurricane_data[hurricane_data[col] != " "]
         if hurricane_data.empty:
-            raise ValueError(f"Hurricane '{hurricane_sid}'  not found in column 'SID', table '{HISTROIC_HURRICANE_TABLE}' in the database")
-        conn.close() 
-        geometry = [Point(lat, lon) for lat, lon in zip(hurricane_data['LAT (degrees_north)'], hurricane_data['LON (degrees_east)'])]
-        hurricane_data['ISO_TIME '] = pd.to_datetime(hurricane_data['ISO_TIME '])
-        hurricane_data = gpd.GeoDataFrame(hurricane_data, geometry=geometry) 
-        hurricane_data.set_crs('epsg:4326') 
+            raise ValueError(
+                f"Hurricane '{hurricane_sid}'  not found in column 'SID', table '{HISTROIC_HURRICANE_TABLE}' in the database"
+            )
+        conn.close()
+        geometry = [
+            Point(lat, lon)
+            for lat, lon in zip(
+                hurricane_data["LAT (degrees_north)"], hurricane_data["LON (degrees_east)"]
+            )
+        ]
+        hurricane_data["ISO_TIME "] = pd.to_datetime(hurricane_data["ISO_TIME "])
+        hurricane_data = gpd.GeoDataFrame(hurricane_data, geometry=geometry)
+        hurricane_data.set_crs("epsg:4326")
         track = []
         for idx, row in hurricane_data.iterrows():
             track.append(
                 WindModel(
-                    name = hurricane_sid,
-                    timestamp=row['ISO_TIME '],
-                    center = row['geometry'],
-                    max_wind_speed = Speed(float(row['USA_WIND (kts)']), "knots"),
-                    radius_of_max_wind = Distance(float(row['USA_RMW (nmile)']), "nautical_mile"),
-                    radius_of_closest_isobar= Distance(float(row['USA_ROCI (nmile)']), "nautical_mile"),
-                    air_pressure= Pressure(float(row['USA_POCI (mb)']), "millibar")
+                    name=hurricane_sid,
+                    timestamp=row["ISO_TIME "],
+                    center=row["geometry"],
+                    max_wind_speed=Speed(float(row["USA_WIND (kts)"]), "knots"),
+                    radius_of_max_wind=Distance(float(row["USA_RMW (nmile)"]), "nautical_mile"),
+                    radius_of_closest_isobar=Distance(
+                        float(row["USA_ROCI (nmile)"]), "nautical_mile"
+                    ),
+                    air_pressure=Pressure(float(row["USA_POCI (mb)"]), "millibar"),
                 )
             )
 

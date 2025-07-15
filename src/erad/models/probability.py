@@ -9,18 +9,22 @@ from erad.quantities import Speed, Acceleration, Temperature
 
 
 class BaseProbabilityModel(Component, ABC):
-    name : str = ''
+    name: str = ""
     survival_probability: Annotated[
         float,
         Field(1.0, ge=0, le=1, description="Asset survival probability"),
-    ] 
+    ]
 
 
 class SpeedProbability(BaseProbabilityModel):
-    speed:  Annotated[
+    speed: Annotated[
         Speed,
-        Field(..., description="Represents the speed of a scenario parameter experienced by the asset e.g speed of wind"),
-    ] 
+        Field(
+            ...,
+            description="Represents the speed of a scenario parameter experienced by the asset e.g speed of wind",
+        ),
+    ]
+
     @classmethod
     def example(cls) -> "SpeedProbability":
         return SpeedProbability(
@@ -28,11 +32,12 @@ class SpeedProbability(BaseProbabilityModel):
             survival_probability=1.0,
         )
 
+
 class TemperatureProbability(BaseProbabilityModel):
-    temperature : Annotated[
+    temperature: Annotated[
         Temperature,
         Field(..., description="Temperature of the asset"),
-    ] 
+    ]
 
     @classmethod
     def example(cls) -> "TemperatureProbability":
@@ -43,10 +48,10 @@ class TemperatureProbability(BaseProbabilityModel):
 
 
 class DistanceProbability(BaseProbabilityModel):
-    distance : Annotated[
+    distance: Annotated[
         Distance,
         Field(..., description="Distance of asset from the source / boundary of a disaster event"),
-    ] 
+    ]
 
     @classmethod
     def example(cls) -> "DistanceProbability":
@@ -55,10 +60,11 @@ class DistanceProbability(BaseProbabilityModel):
             survival_probability=1.0,
         )
 
+
 class AccelerationProbability(BaseProbabilityModel):
-    name : str = ''
-    acceleration : Acceleration = Acceleration(0, "m/s**2")
-    
+    name: str = ""
+    acceleration: Acceleration = Acceleration(0, "m/s**2")
+
     @classmethod
     def example(cls) -> "AccelerationProbability":
         return AccelerationProbability(

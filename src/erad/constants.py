@@ -1,7 +1,8 @@
-""" Module for managing constants in ERAD package.
+"""Module for managing constants in ERAD package.
 
 _Do not change this constants in your code._
 """
+
 from pathlib import Path
 
 import erad.models.fragility_curve as frag

@@ -3,7 +3,8 @@ from erad.runner import HarzardSimulator
 from erad.systems.asset_system import AssetSystem
 from erad.systems.hazard_system import HazardSystem
 
-def get_asset_system()-> AssetSystem:
+
+def get_asset_system() -> AssetSystem:
     asset = Asset.example()
     asset_system = AssetSystem(auto_add_composed_components=True)
     asset_system.add_component(asset.example())

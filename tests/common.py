@@ -1,9 +1,9 @@
-
 from gdm.distribution.components import DistributionBus
 from shapely.geometry import MultiPolygon, Polygon
 from gdm.distribution import DistributionSystem
 from scipy.spatial import ConvexHull
 import numpy as np
+
 
 def _build_convex_hull(lat_lon_points):
     if len(lat_lon_points) < 3:
@@ -20,7 +20,7 @@ def get_multipolygon_from_system(system: DistributionSystem):
     coords = []
     for bus in system.get_components(DistributionBus):
         coords.append((bus.coordinate.x, bus.coordinate.y))
-    
+
     hull = _build_convex_hull(coords)
     polygon = Polygon([(lon, lat) for lat, lon in hull])
     multi_poly = MultiPolygon([polygon])

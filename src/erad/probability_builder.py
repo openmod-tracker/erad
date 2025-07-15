@@ -1,14 +1,11 @@
-from infrasys import BaseQuantity  
+from infrasys import BaseQuantity
 import scipy.stats as stats
-import numpy as np
-
 
 
 class ProbabilityFunctionBuilder:
     """Class containing utility fuctions for sceario definations."""
-    
-    
-    def __init__(self, dist, params:list[float | BaseQuantity]):
+
+    def __init__(self, dist, params: list[float | BaseQuantity]):
         """Constructor for BaseScenario class.
 
         Args:
@@ -16,16 +13,15 @@ class ProbabilityFunctionBuilder:
             params (list): A list of parameters for the chosen distribution function. See Scipy.stats documentation
         """
         base_quantity = [p for p in params if isinstance(p, BaseQuantity)][0]
-        self.quantity =  base_quantity.__class__
+        self.quantity = base_quantity.__class__
         self.units = base_quantity.units
         self.dist = getattr(stats, dist)
-        self.params = [p.magnitude if isinstance(p, BaseQuantity) else p  for p in params]
-        return 
+        self.params = [p.magnitude if isinstance(p, BaseQuantity) else p for p in params]
+        return
 
     def sample(self):
-        """Sample the distribution """
+        """Sample the distribution"""
         return self.quantity(self.dist.rvs(*self.params, size=1)[0], self.units)
-
 
     def probability(self, value: BaseQuantity) -> float:
         """Calculates survival probability of a given asset.
@@ -34,7 +30,6 @@ class ProbabilityFunctionBuilder:
             value (float): value for vetor of interest. Will change with scenarions
         """
         assert isinstance(value, BaseQuantity), "Value must be a BaseQuantity"
-        
-        
+
         cdf = self.dist.cdf
         return cdf(value.to(self.units).magnitude, *self.params)

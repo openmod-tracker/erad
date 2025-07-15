@@ -6,23 +6,23 @@ import pytest
 from erad.systems.asset_system import AssetSystem
 from erad.constants import ASSET_TYPES
 
+
 def test_component_addition():
     h = AssetSystem(auto_add_composed_components=True)
     for m in ASSET_TYPES:
         h.add_component(m.example())
 
-def test_component_failure():
 
+def test_component_failure():
     class Testing(Component):
         ...
 
-    test = Testing(
-        name = "asdf"
-    )
+    test = Testing(name="asdf")
 
     h = AssetSystem(auto_add_composed_components=True)
     with pytest.raises(AssertionError):
         h.add_component(test)
+
 
 def test_from_gdm(gdm_system: DistributionSystem):
     asset_system = AssetSystem.from_gdm(gdm_system)
