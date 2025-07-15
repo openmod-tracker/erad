@@ -12,8 +12,8 @@ from gdm.tracked_changes import (
 
 )
 
+from erad.default_fragility_curves import DEFAULT_FRAGILTY_CURVES
 from erad.models.fragility_curve import HazardFragilityCurves
-from erad.fragility_curves import DEFAULT_FRAGILTY_CURVES
 from erad.systems.hazard_system import HazardSystem
 from erad.systems.asset_system import AssetSystem
 from erad.constants import HAZARD_TYPES

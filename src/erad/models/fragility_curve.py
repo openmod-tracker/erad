@@ -99,4 +99,3 @@ class HazardFragilityCurves(Component):
         ax.legend()
         fig.tight_layout()
         fig.savefig(file_path, dpi=300)
-        plt.show()

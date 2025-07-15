@@ -1,4 +1,4 @@
-from erad.fragility_curves import DEFAULT_FRAGILTY_CURVES
+from erad.default_fragility_curves import DEFAULT_FRAGILTY_CURVES
 
 def test_plotting(tmp_path):
     """Test plotting of fragility curves."""

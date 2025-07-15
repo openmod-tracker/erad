@@ -1,9 +1,9 @@
 from infrasys import System
 
+from erad.default_fragility_curves import DEFAULT_FRAGILTY_CURVES
 from erad.constants import HAZARD_MODELS
 import erad.models.fragility_curve as fc
 import erad.models.hazard as hz
-from erad.fragility_curves import DEFAULT_FRAGILTY_CURVES
 
 class HazardSystem(System):
 

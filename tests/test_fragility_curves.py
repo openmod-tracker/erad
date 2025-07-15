@@ -2,7 +2,7 @@ from pydantic import ValidationError
 from infrasys import BaseQuantity
 
 from erad.models.fragility_curve import HazardFragilityCurves, FragilityCurve, ProbabilityFunction
-from erad.fragility_curves import DEFAULT_FRAGILTY_CURVES
+from erad.default_fragility_curves import DEFAULT_FRAGILTY_CURVES
 from erad.quantities import Speed
 from erad.enums import AssetTypes
 
