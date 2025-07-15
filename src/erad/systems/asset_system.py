@@ -5,12 +5,13 @@ import gdm.distribution.components as gdc
 from gdm.quantities import Distance
 from infrasys import System
 import geopandas as gpd
+import networkx as nx
 import pandas as pd
 
 from erad.gdm_mapping import asset_to_gdm_mapping
 from erad.constants import ASSET_TYPES
 from erad.models.asset import Asset
-from erad.enums import AssetTypes
+from erad.enums import AssetTypes, NodeTypes
 
 
 class AssetSystem(System):
@@ -26,6 +27,26 @@ class AssetSystem(System):
         assert all(isinstance(component, ASSET_TYPES) for component in components), \
         f"Unsupported model types in passed component. Valid types are: \n" + "\n".join([s.__name__ for s in ASSET_TYPES])
         return super().add_components(*components, **kwargs)
+
+    def get_undirected_graph(self):
+        """Get the undirected graph of the AssetSystem."""
+        g = nx.Graph()
+        
+        for asset in self.get_components(Asset):
+            if not asset.connections and asset.asset_type not in NodeTypes:
+                asset.devices.append(str(asset.distribution_asset))
+        
+        for asset in self.get_components(Asset):
+            if asset.connections:
+                u, v = asset.connections
+                g.add_edge(str(u), str(v), **asset.model_dump())
+            else:
+                if asset.asset_type in NodeTypes:
+                    asset.pprint()
+                    g.add_node(str(asset.distribution_asset), **asset.model_dump())
+        
+        return g
+
 
     @classmethod
     def from_gdm(cls, dist_system: DistributionSystem)->'AssetSystem':
@@ -95,6 +116,7 @@ class AssetSystem(System):
                 
                 list_of_assets.append(Asset(
                     name=component.name,
+                    connections=[c.uuid for c in component.buses] if hasattr(component, "buses") else [],
                     asset_type=asset_type,
                     distribution_asset=component.uuid,
                     height=Distance(3, "meter"),
@@ -124,6 +146,7 @@ class AssetSystem(System):
                 asset_dict[asset].extend(list(models))
                 
         AssetSystem._maps_buses(asset_dict, dist_system)
+        AssetSystem._map_transformers(asset_dict, dist_system)
         return asset_dict
 
     @staticmethod
@@ -134,13 +157,22 @@ class AssetSystem(System):
                 asset_dict[asset_type].append(bus)
 
     @staticmethod
-    def _map_transsformers(asset_dict: dict[AssetTypes: list[gdc.DistributionComponentBase]], dist_system:DistributionSystem):
-        for transformer in dist_system.get_components(gdc.DistributionTransformer):
-            asset_type =  AssetSystem._get_bus_type(transformer.bus1, asset_dict, dist_system)
-            if asset_type in [AssetTypes.distribution_poles]:
-                asset_dict[AssetTypes.transformers_overhead].append(transformer)
+    def _map_transformers(asset_dict: dict[AssetTypes: list[gdc.DistributionComponentBase]], dist_system:DistributionSystem):
+        for transformer in dist_system.get_components(gdc.DistributionTransformerBase):
+            bus_types = [ 
+                AssetSystem._get_bus_type(
+                    b, 
+                    asset_dict, 
+                    dist_system
+                ) for b in transformer.buses
+            ]
+            if AssetTypes.transmission_junction_box in bus_types or AssetTypes.transmission_tower in bus_types:
+                asset_dict[AssetTypes.transformer_mad_mount].append(transformer)
+            elif all(bus_type == AssetTypes.distribution_junction_box for bus_type in bus_types):
+                asset_dict[AssetTypes.transformer_mad_mount].append(transformer)
             else:
-                asset_dict[AssetTypes.transformers_mad_mount].append(transformer)
+                asset_dict[AssetTypes.transformer_mad_mount].append(transformer)
+             
 
     @staticmethod
     def _get_bus_type(bus:gdc.DistributionBus, asset_dict: dict[AssetTypes: list[gdc.DistributionComponentBase]], dist_system:DistributionSystem):

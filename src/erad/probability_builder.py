@@ -15,10 +15,11 @@ class ProbabilityFunctionBuilder:
             dist (str): Name of teh distribution. Should follow Scipy naming convention
             params (list): A list of parameters for the chosen distribution function. See Scipy.stats documentation
         """
-        self.quantity =  params[0].__class__
-        self.units = params[0].units
+        base_quantity = [p for p in params if isinstance(p, BaseQuantity)][0]
+        self.quantity =  base_quantity.__class__
+        self.units = base_quantity.units
         self.dist = getattr(stats, dist)
-        self.params = [params[0].magnitude] + params[1:]
+        self.params = [p.magnitude if isinstance(p, BaseQuantity) else p  for p in params]
         return 
 
     def sample(self):

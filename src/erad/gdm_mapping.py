@@ -6,6 +6,21 @@ from erad.models.asset_mapping import ComponentFilterModel
 
 
 asset_to_gdm_mapping =  {
+    # AssetTypes.pad_mount_distribution_transformer : [
+    #     ComponentFilterModel(
+    #         component_type=gdc.DistributionTransformerBase, 
+    #     ),
+    # ],
+    AssetTypes.switch : [
+        ComponentFilterModel(
+            component_type=gdc.DistributionSwitchBase, 
+        ),
+    ],
+    AssetTypes.switch : [
+        ComponentFilterModel(
+            component_type=gdc.DistributionSwitchBase, 
+        ),
+    ],
     AssetTypes.substation : [
         ComponentFilterModel(
             component_type=gdc.DistributionVoltageSource, 

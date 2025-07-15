@@ -22,6 +22,7 @@ from erad.models.asset import Asset
 class HarzardSimulator:
 
     def __init__(self, asset_system: AssetSystem):
+        self._asset_system = asset_system
         self.assets:list[Asset] = list(asset_system.get_components(Asset))
     
     @classmethod
@@ -29,6 +30,11 @@ class HarzardSimulator:
         """Create a HarzardSimulator from a DistributionSystem."""
         asset_system = AssetSystem.from_gdm(dist_system)
         return cls(asset_system)
+
+    @property
+    def asset_system(self)-> AssetSystem:
+        """Get the AssetSystem."""
+        return self._asset_system
 
     def _get_time_stamps(self)-> list[datetime]:
         timestamps = []

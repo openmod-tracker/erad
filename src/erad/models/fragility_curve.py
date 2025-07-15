@@ -1,10 +1,12 @@
 from functools import cached_property
 from typing import Literal
+from pathlib import Path
 
 
 from infrasys import Component, BaseQuantity
 from scipy.stats import _continuous_distns
 from pydantic import field_validator
+import numpy as np
 
 from erad.probability_builder import ProbabilityFunctionBuilder
 from erad.models.asset import AssetState
@@ -22,11 +24,12 @@ class ProbabilityFunction(Component):
 
     @field_validator('parameters')
     def validate_parameters(cls, value):
-        if not isinstance(value[0], BaseQuantity):
-            raise ValueError("First parameters must be BaseQuantity")
-        for param in value[1:]:
-            if not isinstance(param, float):
-                raise ValueError("All values after the first parameter must be float")
+        if not any(isinstance(v, BaseQuantity) for v in value):
+            raise ValueError("There should be atleast one BaseQuantity in the parameters")
+        
+        units = set([v.units for v in value if isinstance(v, BaseQuantity)])
+        if not len(units) == 1:
+            raise ValueError("All BaseQuantities should have the same units")
         return value
 
     @cached_property
@@ -65,3 +68,35 @@ class HazardFragilityCurves(Component):
             asset_state_param='peak_ground_acceleration',
             curves=[FragilityCurve.example()],
         )
+    
+    def plot(self, file_path: Path, x_min: float = 0, x_max: float = None, number_of_points: int = 100):
+        """Plot the fragility curves."""
+        try:
+            import matplotlib.pyplot as plt
+        except:
+            raise ImportError("matplotlib is required for plotting. Please install it using 'pip install matplotlib'")
+        
+        if not self.curves:
+            raise ValueError("No curves to plot")
+        
+        quantities = [p for p in self.curves[0].prob_function.parameters if isinstance(p, BaseQuantity)]
+
+        x_label = self.asset_state_param.replace("_", " ").title()
+        x = np.linspace(x_min, x_max, number_of_points)
+        
+        fig, ax = plt.subplots()
+        fig.set_size_inches(12, 8, forward=True)
+        for curve in self.curves:
+            model_class = quantities[0].__class__
+            units = quantities[0].units
+            prob_model = curve.prob_function.prob_model
+            y = prob_model.probability(model_class(x, units))
+            label =curve.asset_type.name.replace("_", " ").title()
+            ax.plot(x, y, label=label)
+        ax.set_xlabel(f'{x_label} [{units}]')
+        ax.set_ylabel('Probability of Faliure')
+        ax.set_title(f'Fragility Curves for {x_label}')
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig(file_path, dpi=300)
+        plt.show()

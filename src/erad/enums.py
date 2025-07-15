@@ -5,6 +5,12 @@ class ScenarioTypes(IntEnum):
     wind_m_per_s = 1
     fire_m = 2
     earthquake_pga = 3
+
+class NodeTypes(IntEnum):
+    transmission_tower = 5
+    distribution_poles = 6
+    transmission_junction_box = 11
+    distribution_junction_box = 12
     
 class AssetTypes(IntEnum):
     substation = 0
@@ -16,10 +22,12 @@ class AssetTypes(IntEnum):
     distribution_poles = 6
     transmission_overhead_lines = 7
     distribution_overhead_lines = 8
-    transformers_mad_mount = 9
-    transformers_overhead = 10
+    transformer_mad_mount = 9
+    transformer_pole_mount= 10
     transmission_junction_box = 11
     distribution_junction_box = 12
+    switch = 13
+
 
 
     @classmethod

@@ -25,4 +25,11 @@ def test_gdm_model_earthquake(gdm_system: DistributionSystem):
     hazard_system.add_component(earthquake)
     hazard_scenario.run(hazard_system)
 
-    
+
+def test_asset_graph(gdm_system: DistributionSystem):
+    print([c.__name__ for c in gdm_system.get_component_types()])
+    dist_graph = gdm_system.get_undirected_graph()
+    print(dist_graph)
+    hazard_scenario = HarzardSimulator.from_gdm(gdm_system)
+    graph = hazard_scenario.asset_system.get_undirected_graph()
+    print(graph)

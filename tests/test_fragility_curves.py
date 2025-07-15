@@ -53,10 +53,7 @@ def test_invalid_fragility_curve():
         ProbabilityFunction(distribution = "lognorm", parameters = [35, 0.5]),
 
     with pytest.raises(ValidationError):
-        ProbabilityFunction(distribution = "lognorm", parameters = [Speed(35, "cm/s"), Speed(35, "cm/s")]),
-
-    with pytest.raises(ValidationError):
-        ProbabilityFunction(distribution = "lognorm", parameters = [35, Speed(35, "cm/s")]),
+        ProbabilityFunction(distribution = "lognorm", parameters = [Speed(35, "cm/s"), Speed(35, "m/s")]),
 
 def test_valid_probability_func_use():
     prob_data_model=ProbabilityFunction(distribution = "lognorm", parameters = [Speed(35, "cm/s"), 0.5])

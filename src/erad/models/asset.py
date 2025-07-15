@@ -175,8 +175,10 @@ class AssetState(Component):
 
 class Asset(Component):
     distribution_asset : UUID = Field(..., description="UUID of the distribution asset")
+    connections : list[UUID] = Field([], description="List of UUIDs of connected assets")
+    devices : list[UUID] = Field([], description="List of UUIDs of devices associated with the asset")
     asset_type : AssetTypes
-    height: Distance
+    height: Distance = Field (..., gt=0, description="Height of the asset")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude in degrees")
     longitude: float = Field(..., ge=-180, le=180, description="Longitude in degrees")
     asset_state: list[AssetState]
