@@ -26,10 +26,23 @@ def test_gdm_model_earthquake(gdm_system: DistributionSystem):
     hazard_scenario.run(hazard_system)
 
 
-def test_asset_graph(gdm_system: DistributionSystem):
+def test_asset_graph_undirected(gdm_system: DistributionSystem):
     dist_graph = gdm_system.get_undirected_graph()
     hazard_scenario = HarzardSimulator.from_gdm(gdm_system)
     graph = hazard_scenario.asset_system.get_undirected_graph()
+    assert (
+        dist_graph.number_of_edges() == graph.number_of_edges()
+    ), f"The number of edges in the asset graph ({graph.number_of_edges()}) should match the distribution system graph ({dist_graph.number_of_edges()})."
+    assert (
+        dist_graph.number_of_nodes() == graph.number_of_nodes()
+    ), f"The number of nodes in the asset graph ({graph.number_of_nodes()}) should match the distribution system graph. ({dist_graph.number_of_nodes()})"
+
+
+def test_asset_graph_directed(gdm_system: DistributionSystem):
+    dist_graph = gdm_system.get_directed_graph()
+    hazard_scenario = HarzardSimulator.from_gdm(gdm_system)
+    graph = hazard_scenario.asset_system.get_dircted_graph()
+
     assert (
         dist_graph.number_of_edges() == graph.number_of_edges()
     ), f"The number of edges in the asset graph ({graph.number_of_edges()}) should match the distribution system graph ({dist_graph.number_of_edges()})."

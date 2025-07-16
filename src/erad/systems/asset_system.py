@@ -31,23 +31,34 @@ class AssetSystem(System):
         )
         return super().add_components(*components, **kwargs)
 
+    def get_dircted_graph(self):
+        """Get the directed graph of the AssetSystem."""
+
+        graph = self.get_undirected_graph()
+        substations = list(
+            self.get_components(Asset, filter_func=lambda x: x.asset_type == AssetTypes.substation)
+        )
+
+        assert len(substations) <= 1, "There should be at most one substation in the asset system."
+
+        tree = nx.dfs_tree(graph, str(substations[0].connections[0]))
+        return tree
+
     def get_undirected_graph(self):
         """Get the undirected graph of the AssetSystem."""
         g = nx.Graph()
-
+        graph_data = []
         for asset in self.get_components(Asset):
-            if not asset.connections and asset.asset_type not in NodeTypes:
-                asset.devices.append(str(asset.distribution_asset))
-
-        for asset in self.get_components(Asset):
-            if asset.connections:
+            if len(asset.connections) == 2:
                 u, v = asset.connections
                 g.add_edge(str(u), str(v), **asset.model_dump())
             else:
                 if asset.asset_type in NodeTypes:
-                    asset.pprint()
                     g.add_node(str(asset.distribution_asset), **asset.model_dump())
+                else:
+                    graph_data.append(asset.model_dump())
 
+        g.graph["metadata"] = graph_data
         return g
 
     @classmethod
@@ -115,17 +126,15 @@ class AssetSystem(System):
     def _build_assets(
         asset_map: dict[AssetTypes : list[gdc.DistributionComponentBase]],
     ) -> list[Asset]:
-        list_of_assets = []
+        list_of_assets: dict[str, Asset] = {}
+
         for asset_type, components in asset_map.items():
             for component in components:
                 lat, long = AssetSystem._get_component_coordinate(component)
-
-                list_of_assets.append(
-                    Asset(
+                if type(component) == gdc.DistributionBus:
+                    list_of_assets[str(component.uuid)] = Asset(
                         name=component.name,
-                        connections=[c.uuid for c in component.buses]
-                        if hasattr(component, "buses")
-                        else [],
+                        connections=[],
                         asset_type=asset_type,
                         distribution_asset=component.uuid,
                         height=Distance(3, "meter"),
@@ -133,8 +142,33 @@ class AssetSystem(System):
                         longitude=long,
                         asset_state=[],
                     )
-                )
-        return list_of_assets
+
+        for asset_type, components in asset_map.items():
+            for component in components:
+                if type(component) != gdc.DistributionBus:
+                    lat, long = AssetSystem._get_component_coordinate(component)
+                    if hasattr(component, "buses"):
+                        connections = [c.uuid for c in component.buses]
+                    elif hasattr(component, "bus"):
+                        connections = [component.bus.uuid]
+                    else:
+                        connections = []
+                    list_of_assets[str(component.uuid)] = Asset(
+                        name=component.name,
+                        connections=connections,
+                        asset_type=asset_type,
+                        distribution_asset=component.uuid,
+                        height=Distance(3, "meter"),
+                        latitude=lat,
+                        longitude=long,
+                        asset_state=[],
+                    )
+
+                    if len(connections) == 1:
+                        asset = list_of_assets[str(connections[0])]
+                        asset.devices.append(component.uuid)
+
+        return list_of_assets.values()
 
     @staticmethod
     def _get_component_coordinate(component: gdc.DistributionComponentBase):

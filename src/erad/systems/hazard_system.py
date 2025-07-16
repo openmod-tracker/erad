@@ -20,12 +20,14 @@ class HazardSystem(System):
         assert all(isinstance(component, HAZARD_MODELS) for component in components), (
             "Unsupported model types in passed component. Valid types are: \n"
             + "\n".join([s.__name__ for s in HAZARD_MODELS])
+            + "\nPassed components: \n"
+            + "\n".join(set([component.__class__.__name__ for component in components]))
         )
         return super().add_components(*components, **kwargs)
 
     def to_json(self, filename, overwrite=False, indent=None, data=None):
         if not list(self.get_components(fc.HazardFragilityCurves)):
-            self.add_components(DEFAULT_FRAGILTY_CURVES)
+            self.add_components(*DEFAULT_FRAGILTY_CURVES)
         return super().to_json(filename, overwrite, indent, data)
 
     @classmethod
