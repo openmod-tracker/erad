@@ -5,6 +5,8 @@ __pycache__/
 .vscode/**
 .qodo/**
 .pytest_cache/**
+**/.DS_Store
+
 
 # C extensions
 *.so
@@ -56,6 +58,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
+*.sqlite
 *.py,cover
 .hypothesis/
 .pytest_cache/
