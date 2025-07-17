@@ -65,6 +65,7 @@ class AssetSystem(System):
     def from_gdm(cls, dist_system: DistributionSystem) -> "AssetSystem":
         """Create a AssetSystem from a DistributionSystem."""
         asset_map = AssetSystem.map_asets(dist_system)
+        # list_of_assets = AssetSystem._build_assets(asset_map)
         system = AssetSystem(auto_add_composed_components=True)
         list_of_assets = system._build_assets(asset_map)
         system.add_components(*list_of_assets)
@@ -130,7 +131,7 @@ class AssetSystem(System):
         for asset_type, components in asset_map.items():
             for component in components:
                 lat, long = AssetSystem._get_component_coordinate(component)
-                if type(component) == gdc.DistributionBus:
+                if isinstance(component, gdc.DistributionBus):
                     list_of_assets[str(component.uuid)] = Asset(
                         name=component.name,
                         connections=[],
@@ -153,7 +154,7 @@ class AssetSystem(System):
 
         for asset_type, components in asset_map.items():
             for component in components:
-                if type(component) != gdc.DistributionBus:
+                if not isinstance(component, gdc.DistributionBus):
                     lat, long = AssetSystem._get_component_coordinate(component)
                     if hasattr(component, "buses"):
                         connections = [c.uuid for c in component.buses]
