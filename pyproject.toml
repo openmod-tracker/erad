@@ -36,6 +36,7 @@ classifiers = [
 ]
 dependencies = [
     "grid-data-models~=2.1.2",
+    "gdmloader",
     "geopandas",
     "requests",
     "shapely",
