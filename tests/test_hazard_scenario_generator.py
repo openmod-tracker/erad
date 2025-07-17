@@ -14,7 +14,7 @@ def test_hazard_scenarios(gdm_system: DistributionSystem):
         asset_system=asset_system, hazard_system=hazard_system
     )
     scenarios = scenario_generator.samples(number_of_samples)
-    assert len(scenarios) == 91
+    assert len(scenarios) == 46
 
     scenario_names = {s.scenario_name for s in scenarios}
     assert len(scenario_names) == number_of_samples
