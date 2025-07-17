@@ -77,7 +77,7 @@ class HazardFragilityCurves(Component):
         self, file_path: Path, x_min: float = 0, x_max: float = None, number_of_points: int = 100
     ):
         """Plot the fragility curves."""
-
+        file_path = Path(file_path)
         assert file_path.suffix.lower() == ".html", "File path should be an HTML file"
 
         if not self.curves:
