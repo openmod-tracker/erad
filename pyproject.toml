@@ -54,7 +54,8 @@ dev = [
     "mkdocs-material",
     "mkdocstrings[python]",
     "pylint",
-    "pytest"
+    "pytest",
+    "pytest-cov"
 ]
 
 [project.urls]
