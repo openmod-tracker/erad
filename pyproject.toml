@@ -55,7 +55,8 @@ dev = [
     "mkdocstrings[python]",
     "pylint",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "ruff"
 ]
 
 [project.urls]
