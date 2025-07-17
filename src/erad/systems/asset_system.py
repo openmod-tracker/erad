@@ -65,8 +65,8 @@ class AssetSystem(System):
     def from_gdm(cls, dist_system: DistributionSystem) -> "AssetSystem":
         """Create a AssetSystem from a DistributionSystem."""
         asset_map = AssetSystem.map_asets(dist_system)
-        list_of_assets = AssetSystem._build_assets(asset_map)
         system = AssetSystem(auto_add_composed_components=True)
+        list_of_assets = system._build_assets(asset_map)
         system.add_components(*list_of_assets)
         return system
 
@@ -122,12 +122,11 @@ class AssetSystem(System):
         gdf_nodes = self.to_gdf()
         return gdf_nodes.to_json()
 
-    @staticmethod
-    def _build_assets(
+    def _prepopulate_bus_assets(
+        self,
         asset_map: dict[AssetTypes : list[gdc.DistributionComponentBase]],
-    ) -> list[Asset]:
-        list_of_assets: dict[str, Asset] = {}
-
+        list_of_assets: dict[str, Asset],
+    ):
         for asset_type, components in asset_map.items():
             for component in components:
                 lat, long = AssetSystem._get_component_coordinate(component)
@@ -142,6 +141,15 @@ class AssetSystem(System):
                         longitude=long,
                         asset_state=[],
                     )
+        return list_of_assets
+
+    def _build_assets(
+        self,
+        asset_map: dict[AssetTypes : list[gdc.DistributionComponentBase]],
+    ) -> list[Asset]:
+        list_of_assets: dict[str, Asset] = {}
+
+        self._prepopulate_bus_assets(asset_map, list_of_assets)
 
         for asset_type, components in asset_map.items():
             for component in components:
@@ -165,8 +173,9 @@ class AssetSystem(System):
                     )
 
                     if len(connections) == 1:
-                        asset = list_of_assets[str(connections[0])]
-                        asset.devices.append(component.uuid)
+                        if str(connections[0]) in list_of_assets:
+                            asset = list_of_assets[str(connections[0])]
+                            asset.devices.append(component.uuid)
 
         return list_of_assets.values()
 

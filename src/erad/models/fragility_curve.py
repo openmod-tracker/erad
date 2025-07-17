@@ -6,12 +6,14 @@ from pathlib import Path
 from infrasys import Component, BaseQuantity
 from scipy.stats import _continuous_distns
 from pydantic import field_validator
+import plotly.express as px
 import numpy as np
 
 from erad.probability_builder import ProbabilityFunctionBuilder
 from erad.models.asset import AssetState
 from erad.enums import AssetTypes
 from erad.quantities import Speed
+
 
 FRAGILITY_CURVE_TYPES = [
     fc for fc in AssetState.model_fields if fc not in ["name", "uuid", "timestamp"]
@@ -75,12 +77,8 @@ class HazardFragilityCurves(Component):
         self, file_path: Path, x_min: float = 0, x_max: float = None, number_of_points: int = 100
     ):
         """Plot the fragility curves."""
-        try:
-            import matplotlib.pyplot as plt
-        except Exception:
-            raise ImportError(
-                "matplotlib is required for plotting. Please install it using 'pip install matplotlib'"
-            )
+
+        assert file_path.suffix.lower() == ".html", "File path should be an HTML file"
 
         if not self.curves:
             raise ValueError("No curves to plot")
@@ -92,18 +90,27 @@ class HazardFragilityCurves(Component):
         x_label = self.asset_state_param.replace("_", " ").title()
         x = np.linspace(x_min, x_max, number_of_points)
 
-        fig, ax = plt.subplots()
-        fig.set_size_inches(12, 8, forward=True)
+        plot_data = {"x": [], "y": [], "Asset Type": []}
+
         for curve in self.curves:
             model_class = quantities[0].__class__
             units = quantities[0].units
             prob_model = curve.prob_function.prob_model
             y = prob_model.probability(model_class(x, units))
             label = curve.asset_type.name.replace("_", " ").title()
-            ax.plot(x, y, label=label)
-        ax.set_xlabel(f"{x_label} [{units}]")
-        ax.set_ylabel("Probability of Faliure")
-        ax.set_title(f"Fragility Curves for {x_label}")
-        ax.legend()
-        fig.tight_layout()
-        fig.savefig(file_path, dpi=300)
+
+            plot_data["x"].extend(x)
+            plot_data["y"].extend(y)
+            plot_data["Asset Type"].extend([label] * len(x))
+
+        fig = px.line(
+            plot_data,
+            x="x",
+            y="y",
+            color="Asset Type",
+            labels={"x": f"{x_label} [{units}]", "y": "Probability of Failure"},
+            title=f"Fragility Curves for {x_label}",
+        )
+
+        fig.show()
+        fig.write_html(file_path)
