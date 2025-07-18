@@ -4,7 +4,9 @@ import os
 
 from shapely.geometry import MultiPolygon, Polygon, Point
 from pydantic import field_serializer, field_validator
+import plotly.graph_objects as go
 from gdm.quantities import Angle
+from infrasys import Component
 from shapely import wkb
 import pandas as pd
 
@@ -13,7 +15,7 @@ from erad.models.hazard.base_models import BaseDisasterModel
 from erad.quantities import Speed
 
 
-class FireModelArea(BaseDisasterModel):
+class FireModelArea(Component):
     name: str = ""
     affected_area: Polygon
     wind_speed: Speed
@@ -89,3 +91,31 @@ class FireModel(BaseDisasterModel):
             .astype(datetime),
             affected_areas=areas,
         )
+
+    def plot(
+        self,
+        time_index: int = 0,
+        figure: go.Figure = go.Figure(),
+        map_obj: type[go.Scattergeo | go.Scattermap] = go.Scattermap,
+    ) -> int:
+        for area in self.affected_areas:
+            lon, lat = area.affected_area.exterior.xy  # returns x and y sequences
+            figure.add_trace(
+                map_obj(
+                    lon=lon.tolist(),
+                    lat=lat.tolist(),
+                    mode="markers+lines+text",
+                    fill="toself",
+                    marker={
+                        "size": 10,
+                        "color": [area.wind_speed.magnitude],
+                    },
+                    hovertemplate=f"""
+                        <br> <b>Wind speed:</b> {area.wind_speed}
+                        <br> <b>Wind direction:</b> {area.wind_direction}
+                        """,
+                    hoverinfo="text",
+                    visible=(time_index == 0),
+                )
+            )
+        return len(self.affected_areas)

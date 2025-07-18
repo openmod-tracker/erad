@@ -3,6 +3,7 @@
 _Do not change this constants in your code._
 """
 
+from datetime import datetime
 from pathlib import Path
 
 import erad.models.fragility_curve as frag
@@ -18,6 +19,7 @@ TEST_PATH = Path(__file__).parent.parent.parent / "tests"
 DATA_FOLDER_NAME = "data"
 DATA_FOLDER = TEST_PATH / DATA_FOLDER_NAME
 
+DEFAULT_TIME_STAMP = datetime(1970, 1, 1, 0, 0, 0)
 
 ASSET_TYPES = (
     asset.AssetState,
