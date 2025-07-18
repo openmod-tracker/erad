@@ -5,6 +5,7 @@ import os
 from pydantic import field_serializer, field_validator
 from infrasys.quantities import Distance
 from shapely.geometry import Point
+import plotly.graph_objects as go
 import geopandas as gpd
 import pandas as pd
 
@@ -94,3 +95,49 @@ class WindModel(BaseDisasterModel):
             )
 
         return track
+
+    def plot(
+        self,
+        time_index: int = 0,
+        figure: go.Figure = go.Figure(),
+        map_obj: type[go.Scattergeo | go.Scattermap] = go.Scattermap,
+    ) -> int:
+        figure.add_trace(
+            map_obj(
+                lat=[self.center.x],
+                lon=[self.center.y],
+                mode="markers",
+                marker=dict(
+                    size=[self.radius_of_closest_isobar.magnitude / 5],
+                    color="lightblue",
+                    opacity=0.4,
+                ),
+                name="Radius of closest isobar",  # Name for the legend
+                visible=(time_index == 0),
+            )
+        )
+
+        figure.add_trace(
+            map_obj(
+                lat=[self.center.x],
+                lon=[self.center.y],
+                mode="markers",
+                marker=dict(
+                    size=[self.radius_of_max_wind.magnitude / 5],
+                    color=[self.max_wind_speed.magnitude],
+                    showscale=False,
+                    opacity=0.4,
+                ),
+                visible=(time_index == 0),
+                hovertext=[
+                    f"""
+                    <br> <b>Max wind speed:</b> {self.max_wind_speed}
+                    <br> <b>Radius of max wind speed:</b> {self.radius_of_max_wind}
+                    <br> <b>Radius of closest isobar:</b> {self.radius_of_closest_isobar}
+                    <br> <b>Air pressure:</b> {self.air_pressure}
+                    """
+                ],
+                name="Radius of max wind",  # Name for the legend
+            )
+        )
+        return 2

@@ -1,16 +1,21 @@
 from collections import defaultdict, Counter
 
+from gdm.distribution.enums import PlotingStyle, MapType
 from gdm.distribution import DistributionSystem
+from shapely.geometry import Point, LineString
 import gdm.distribution.components as gdc
 from gdm.quantities import Distance
+import plotly.graph_objects as go
 from infrasys import System
 import geopandas as gpd
 import networkx as nx
 import pandas as pd
+import numpy as np
 
+
+from erad.constants import ASSET_TYPES, DEFAULT_TIME_STAMP
 from erad.gdm_mapping import asset_to_gdm_mapping
-from erad.constants import ASSET_TYPES
-from erad.models.asset import Asset
+from erad.models.asset import Asset, AssetState
 from erad.enums import AssetTypes, NodeTypes
 
 
@@ -71,44 +76,78 @@ class AssetSystem(System):
         system.add_components(*list_of_assets)
         return system
 
-    def to_gdf(self) -> gpd.GeoDataFrame:
-        """Create a geodataframe from an AssetSystem."""
+    def _add_node_data(
+        self, node_data: dict[str, list], asset: Asset, asset_state: AssetState | None = None
+    ):
+        node_data["name"].append(asset.name)
+        node_data["type"].append(asset.asset_type.name)
+        node_data["height"].append(asset.height.to("meter").magnitude)
+        node_data["elevation"].append(asset.elevation.to("meter").magnitude)
+        node_data["latitude"].append(asset.latitude)
+        node_data["longitude"].append(asset.longitude)
+        node_data["timestamp"].append(asset_state.timestamp if asset_state else DEFAULT_TIME_STAMP)
+        node_data["survival_prob"].append(asset_state.survival_probability if asset_state else 1.0)
+        node_data["wind_speed"].append(asset_state.wind_speed if asset_state else None)
+        node_data["fire_boundary_dist"].append(
+            asset_state.fire_boundary_dist if asset_state else None
+        )
+        node_data["flood_depth"].append(asset_state.flood_depth if asset_state else None)
+        node_data["flood_velocity"].append(asset_state.flood_velocity if asset_state else None)
+        node_data["peak_ground_acceleration"].append(
+            asset_state.peak_ground_acceleration if asset_state else None
+        )
+        node_data["peak_ground_velocity"].append(
+            asset_state.peak_ground_velocity if asset_state else None
+        )
+        return node_data
+
+    def _add_edge_data(
+        self, edge_data: dict[str, list], asset: Asset, asset_state: AssetState | None = None
+    ):
+        u, v = set(asset.connections)
+        buses = list(
+            self.get_components(Asset, filter_func=lambda x: x.distribution_asset in [u, v])
+        )
+        edge_data["name"].append(asset.name)
+        edge_data["type"].append(asset.asset_type.name)
+        edge_data["height"].append(asset.height.to("meter").magnitude)
+        edge_data["elevation"].append(asset.elevation.to("meter").magnitude)
+        edge_data["latitude"].append([b.latitude for b in buses])
+        edge_data["longitude"].append([b.longitude for b in buses])
+        edge_data["timestamp"].append(asset_state.timestamp if asset_state else DEFAULT_TIME_STAMP)
+        edge_data["survival_prob"].append(asset_state.survival_probability if asset_state else 1.0)
+        edge_data["wind_speed"].append(asset_state.wind_speed if asset_state else None)
+        edge_data["fire_boundary_dist"].append(
+            asset_state.fire_boundary_dist if asset_state else None
+        )
+        edge_data["flood_depth"].append(asset_state.flood_depth if asset_state else None)
+        edge_data["flood_velocity"].append(asset_state.flood_velocity if asset_state else None)
+        edge_data["peak_ground_acceleration"].append(
+            asset_state.peak_ground_acceleration if asset_state else None
+        )
+        edge_data["peak_ground_velocity"].append(
+            asset_state.peak_ground_velocity if asset_state else None
+        )
+        return edge_data
+
+    def to_gdf(self):
         node_data = defaultdict(list)
+        edge_data = defaultdict(list)
         assets: list[Asset] = self.get_components(Asset)
+
         for asset in assets:
-            if asset.asset_state:
-                for asset_state in asset.asset_state:
-                    node_data["name"].append(asset.name)
-                    node_data["type"].append(asset.asset_type.name)
-                    node_data["height"].append(asset.height.to("meter").magnitude)
-                    node_data["elevation"].append(asset.elevation.to("meter").magnitude)
-                    node_data["latitude"].append(asset.latitude)
-                    node_data["longitude"].append(asset.longitude)
-                    node_data["timestamp"].append(asset_state.timestamp)
-                    node_data["survival_prob"].append(asset_state.survival_probability)
-                    node_data["wind_speed"].append(asset_state.wind_speed)
-                    node_data["fire_boundary_dist"].append(asset_state.fire_boundary_dist)
-                    node_data["flood_depth"].append(asset_state.flood_depth)
-                    node_data["flood_velocity"].append(asset_state.flood_velocity)
-                    node_data["peak_ground_acceleration"].append(
-                        asset_state.peak_ground_acceleration
-                    )
-                    node_data["peak_ground_velocity"].append(asset_state.peak_ground_velocity)
+            if len(set(asset.connections)) < 2:
+                if asset.asset_state:
+                    for asset_state in asset.asset_state:
+                        node_data = self._add_node_data(node_data, asset, asset_state)
+                else:
+                    node_data = self._add_node_data(node_data, asset, None)
             else:
-                node_data["name"].append(asset.name)
-                node_data["type"].append(asset.asset_type.name)
-                node_data["height"].append(asset.height.to("meter").magnitude)
-                node_data["elevation"].append(asset.elevation.to("meter").magnitude)
-                node_data["latitude"].append(asset.latitude)
-                node_data["longitude"].append(asset.longitude)
-                node_data["timestamp"].append(None)
-                node_data["survival_prob"].append(None)
-                node_data["wind_speed"].append(None)
-                node_data["fire_boundary_dist"].append(None)
-                node_data["flood_depth"].append(None)
-                node_data["flood_velocity"].append(None)
-                node_data["peak_ground_acceleration"].append(None)
-                node_data["peak_ground_velocity"].append(None)
+                if asset.asset_state:
+                    for asset_state in asset.asset_state:
+                        edge_data = self._add_edge_data(edge_data, asset, asset_state)
+                else:
+                    edge_data = self._add_edge_data(edge_data, asset, None)
 
         nodes_df = pd.DataFrame(node_data)
         gdf_nodes = gpd.GeoDataFrame(
@@ -116,7 +155,15 @@ class AssetSystem(System):
             geometry=gpd.points_from_xy(nodes_df.longitude, nodes_df.latitude),
             crs="EPSG:4326",
         )
-        return gdf_nodes
+        edge_df = pd.DataFrame(edge_data)
+        edge_df = edge_df[edge_df["longitude"].apply(lambda x: len(x) == 2)]
+        geometry = [
+            LineString([Point(xy) for xy in zip(*xys)])
+            for xys in zip(edge_df["longitude"], edge_df["latitude"])
+        ]
+        gdf_edges = gpd.GeoDataFrame(edge_df, geometry=geometry, crs="EPSG:4326")
+        complete_gdf = pd.concat([gdf_nodes, gdf_edges])
+        return complete_gdf
 
     def to_geojson(self) -> str:
         """Create a GeoJSON from an AssetSystem."""
@@ -258,3 +305,110 @@ class AssetSystem(System):
         if connected_types:
             counter = Counter(connected_types)
             return counter.most_common(1)[0][0]
+
+    def _add_node_traces(
+        self,
+        time_index: int,
+        fig: go.Figure,
+        df_ts: gpd.GeoDataFrame,
+        plotting_object: go.Scattermap | go.Scattergeo,
+    ):
+        points_only = df_ts[df_ts.geometry.geom_type == "Point"]
+        for asset_type in set(points_only["type"]):
+            print("Asset type: ", asset_type)
+            df_filt = points_only[points_only["type"] == asset_type]
+            text = [
+                "<br>".join([f"<b>{kk}:</b> {vv}" for kk, vv in rr.to_dict().items()][:-1])
+                for __, rr in df_filt.iterrows()
+            ]
+            trace = plotting_object(
+                lat=df_filt.geometry.y,
+                lon=df_filt.geometry.x,
+                mode="markers",
+                marker=dict(size=10),
+                name=asset_type,
+                hovertext=text,
+                visible=(time_index == 0),
+            )
+            fig.add_trace(trace)
+        return fig
+
+    def _add_edge_traces(
+        self,
+        time_index: int,
+        fig: go.Figure,
+        df_ts: gpd.GeoDataFrame,
+        plotting_object: go.Scattermap | go.Scattergeo,
+    ):
+        points_only = df_ts[df_ts.geometry.geom_type == "LineString"]
+        for asset_type in set(points_only["type"]):
+            df_filt = points_only[points_only["type"] == asset_type]
+            features = {k: [] for k in list(df_filt.columns) + ["text"]}
+            for _, row in df_filt.iterrows():
+                for c in df_filt.columns:
+                    features[c] = np.append(features[c], row[c])
+                features["text"] = np.append(
+                    features["text"],
+                    "<br> ".join([f"<b>{kk}:</b> {vv}" for kk, vv in row.to_dict().items()][:-1]),
+                )
+                for c in df_filt.columns:
+                    features[c] = np.append(features[c], None)
+                features["text"] = np.append(features["text"], None)
+
+            trace = plotting_object(
+                name=asset_type,
+                lat=features["latitude"],
+                lon=features["longitude"],
+                mode="lines",
+                hovertext=features["text"],
+                visible=(time_index == 0),
+            )
+            fig.add_trace(trace)
+        return fig
+
+    def plot(
+        self,
+        show: bool = True,
+        show_legend: bool = True,
+        map_type: MapType = MapType.SCATTER_MAP,
+        style: PlotingStyle = PlotingStyle.CARTO_POSITRON,
+        zoom_level: int = 11,
+    ):
+        """Plot the AssetSystem."""
+        plotting_object = getattr(go, map_type.value)
+        gdf = self.to_gdf()
+        gdf["timestamp"] = pd.to_datetime(gdf["timestamp"])
+        timestamps = sorted(gdf["timestamp"].unique())
+        fig = go.Figure()
+        steps = []
+
+        for i, ts in enumerate(timestamps):
+            df_ts = gdf[gdf["timestamp"] == ts]
+
+            fig = self._add_node_traces(i, fig, df_ts, plotting_object)
+            fig = self._add_edge_traces(i, fig, df_ts, plotting_object)
+
+            steps.append(
+                dict(
+                    method="update",
+                    label=str(ts.date()),
+                    args=[{"visible": [j == i for j in range(len(timestamps))]}],
+                )
+            )
+
+        sliders = [dict(active=0, pad={"t": 50}, steps=steps)]
+
+        fig.update_layout(
+            mapbox=dict(
+                style=style.value,
+                zoom=zoom_level,
+                # center=dict(lat=gdf.geometry.y.mean(), lon=gdf.geometry.x.mean()),
+            ),
+            sliders=sliders,
+            showlegend=True if show_legend else False,
+        )
+
+        if show:
+            fig.show()
+
+        return fig

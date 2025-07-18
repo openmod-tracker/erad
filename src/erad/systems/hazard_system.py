@@ -1,5 +1,8 @@
 from infrasys import System
 
+from gdm.distribution.enums import PlotingStyle, MapType
+import plotly.graph_objects as go
+
 from erad.default_fragility_curves import DEFAULT_FRAGILTY_CURVES
 from erad.constants import HAZARD_MODELS
 import erad.models.fragility_curve as fc
@@ -66,3 +69,54 @@ class HazardSystem(System):
         system.add_component(wind_hazard)
         system.add_component(flood_hazard)
         return system
+
+    def plot(
+        self,
+        show: bool = True,
+        show_legend: bool = True,
+        map_type: MapType = MapType.SCATTER_MAP,
+        style: PlotingStyle = PlotingStyle.CARTO_POSITRON,
+        zoom_level: int = 11,
+    ):
+        timestamps = sorted(
+            [model.timestamp for model in self.get_components(hz.BaseDisasterModel)]
+        )
+
+        fig = go.Figure()
+        steps = []
+        for i, ts in enumerate(timestamps):
+            hazards = self.get_components(
+                hz.BaseDisasterModel, filter_func=lambda x: x.timestamp == ts
+            )
+            map_obj = getattr(go, map_type.value)
+            num_traces = 0
+            for hazard in hazards:
+                num_traces += hazard.plot(i, fig, map_obj)
+            vis = [j == i for j in range(len(timestamps))]
+            result = [x for x in vis for _ in range(num_traces)]
+            steps.append(dict(method="update", label=str(ts), args=[{"visible": result}]))
+
+        sliders = [dict(active=0, pad={"t": 50}, steps=steps)]
+
+        if map_type == MapType.SCATTER_MAP:
+            fig.update_layout(
+                map={
+                    "style": style.value,
+                    "zoom": zoom_level,
+                },
+                sliders=sliders,
+                showlegend=True if show_legend else False,
+            )
+        else:
+            fig.update_layout(
+                geo=dict(
+                    projection_scale=zoom_level,
+                ),
+                sliders=sliders,
+                showlegend=True if show_legend else False,
+            )
+
+        if show:
+            fig.show()
+
+        return fig

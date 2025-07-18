@@ -5,6 +5,7 @@ import os
 from pydantic import field_serializer, field_validator
 from gdm.quantities import Distance
 from shapely.geometry import Point
+import plotly.graph_objects as go
 import pandas as pd
 
 from erad.models.hazard.common import ERAD_DB, HISTROIC_EARTHQUAKE_TABLE
@@ -66,3 +67,27 @@ class EarthQuakeModel(BaseDisasterModel):
             depth=Distance(earthquake_data.Depth.values[0], "km"),
             magnitude=earthquake_data.Magnitude.values[0],
         )
+
+    def plot(
+        self,
+        time_index: int = 0,
+        figure: go.Figure = go.Figure(),
+        map_obj: type[go.Scattergeo | go.Scattermap] = go.Scattermap,
+    ) -> int:
+        figure.add_trace(
+            map_obj(
+                lat=[self.origin.y],
+                lon=[self.origin.x],
+                mode="markers",
+                marker=dict(size=[self.magnitude * 10], color=[self.depth.magnitude], opacity=0.4),
+                name="Earthquake",
+                hovertext=[
+                    f"""
+                    <br> <b>Earthquake depth:</b> {self.depth}
+                    <br> <b>Earthquake magnitude:</b> {self.magnitude}
+                    """
+                ],
+                visible=(time_index == 0),
+            )
+        )
+        return 1

@@ -35,3 +35,8 @@ def test_serialization_deserialization(tmp_path):
         h.add_component(m.example())
     h.to_json(tmp_path / "asset_system.json")
     AssetSystem.from_json(tmp_path / "asset_system.json")
+
+
+def test_plot(gdm_system_2: DistributionSystem):
+    asset_system = AssetSystem.from_gdm(gdm_system_2)
+    asset_system.plot()
