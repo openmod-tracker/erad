@@ -47,7 +47,7 @@ ERAD is a free, open-source Python toolkit for computing energy resilience measu
 
 ERAD is now part of the [Grid-Data-Models](https://nrel-distribution-suites.github.io/grid-data-models/intro.html) (GDM) ecosystem! This integration enables ERAD to run resilience analyses directly on GDM-based distribution systems, improving interoperability with other distribution-focused tools and streamlining the development of automated workflows. 
 
-For outage simulations, ERAD uses asset fragility curves [@Jessica, @kongar_seismic_2017, @kongar_seismic_2014, @en10071037, @Jeddi, @BAGHMISHEH2021106909, @williams_tsunami_2020, @bennett_extending_2021] which are functions that relate hazard severity to survival probability for power system assets including cables, transformers, substations, roof-mounted solar panels, etc. [@rajabzadeh_improving_2022, @fema_hazus_2020, @farahani_earthquake_2020, @cirone_valutazione_2013,@su12041527]. Outage scenarios are then generated based on Monte Carlo samples across these individual equipment survival probabilities.
+For outage simulations, ERAD uses asset fragility curves [@Jessica], [@kongar_seismic_2017], [@kongar_seismic_2014], [@en10071037], [@Jeddi], [@BAGHMISHEH2021106909], [@williams_tsunami_2020], [@bennett_extending_2021] which are functions that relate hazard severity to survival probability for power system assets including cables, transformers, substations, roof-mounted solar panels, etc. [@rajabzadeh_improving_2022], [@fema_hazus_2020], [@farahani_earthquake_2020], [@cirone_valutazione_2013],[@su12041527]. Outage scenarios are then generated based on Monte Carlo samples across these individual equipment survival probabilities.
 
 # Example Usage
 
