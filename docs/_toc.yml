@@ -22,6 +22,10 @@ parts:
     - file: simulation/fragility
   - caption: Reference Guides
     chapters:
-    - file: reference/api/index
+    - file: api/data_models
+    - file: api/enumerations
+    - file: api/quantities
+  - caption: Citations
+    chapters:
     - file: reference/citations
 

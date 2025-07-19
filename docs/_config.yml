@@ -1,8 +1,8 @@
 # Book settings
 # Learn more at https://jupyterbook.org/customize/config.html
 
-title: My sample book
-author: The Jupyter Book Community
+title: ERAD
+author: Aadil Latif
 logo: _static/light.png
 
 # Force re-execution of notebooks on each build.
@@ -25,13 +25,31 @@ repository:
   path_to_book: docs  # Optional path to your book, relative to the repository root
   branch: master  # Which branch of the repository should be used when creating links (optional)
 
+
 # Add GitHub buttons to your book
 # See https://jupyterbook.org/customize/config.html#add-a-link-to-your-repository
 html:
   use_issues_button: true
   use_repository_button: true
-
+  extra_footer: |
+    <p>
+    © Copyright 2024, Alliance for Sustainable Energy, LLC. This work is licensed under a BSD 3-Clause License
+    </p>
 
 theme:
   logo: _static/light.png
   logo_dark: _static/dark.png
+
+sphinx:
+  extra_extensions:
+   - 'sphinx.ext.autodoc'
+   - 'sphinx.ext.autosummary'
+   - 'sphinx.ext.coverage'
+   - 'sphinx.ext.napoleon'
+   - 'sphinx.ext.intersphinx'
+   - 'sphinxcontrib.autodoc_pydantic'
+   - 'sphinxcontrib.mermaid'
+   - 'sphinx.ext.mathjax'
+
+  config:
+    html_show_copyright: false
