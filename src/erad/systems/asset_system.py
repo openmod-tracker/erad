@@ -1,4 +1,5 @@
 from collections import defaultdict, Counter
+from pathlib import Path
 
 from gdm.distribution.enums import PlotingStyle, MapType
 from gdm.distribution import DistributionSystem
@@ -7,13 +8,15 @@ import gdm.distribution.components as gdc
 from gdm.quantities import Distance
 import plotly.graph_objects as go
 from infrasys import System
+from loguru import logger
 import geopandas as gpd
 import networkx as nx
 import pandas as pd
 import numpy as np
+import elevation
 
 
-from erad.constants import ASSET_TYPES, DEFAULT_TIME_STAMP
+from erad.constants import ASSET_TYPES, DEFAULT_TIME_STAMP, RASTER_DOWNLOAD_PATH, DEFAULT_HEIGHTS_M
 from erad.gdm_mapping import asset_to_gdm_mapping
 from erad.models.asset import Asset, AssetState
 from erad.enums import AssetTypes, NodeTypes
@@ -184,7 +187,7 @@ class AssetSystem(System):
                         connections=[],
                         asset_type=asset_type,
                         distribution_asset=component.uuid,
-                        height=Distance(3, "meter"),
+                        height=Distance(DEFAULT_HEIGHTS_M[asset_type], "meter"),
                         latitude=lat,
                         longitude=long,
                         asset_state=[],
@@ -214,7 +217,7 @@ class AssetSystem(System):
                         connections=connections,
                         asset_type=asset_type,
                         distribution_asset=component.uuid,
-                        height=Distance(3, "meter"),
+                        height=Distance(DEFAULT_HEIGHTS_M[asset_type], "meter"),
                         latitude=lat,
                         longitude=long,
                         asset_state=[],
@@ -232,7 +235,10 @@ class AssetSystem(System):
         if hasattr(component, "buses"):
             xs = [bus.coordinate.x for bus in component.buses]
             ys = [bus.coordinate.y for bus in component.buses]
-            return (sum(xs) / len(xs), sum(ys) / len(ys))
+            if 0 not in xs and 0 not in ys:
+                return (sum(xs) / len(xs), sum(ys) / len(ys))
+            else:
+                return (0, 0)
         elif hasattr(component, "bus"):
             return (component.bus.coordinate.x, component.bus.coordinate.y)
         elif isinstance(component, gdc.DistributionBus):
@@ -315,7 +321,6 @@ class AssetSystem(System):
     ):
         points_only = df_ts[df_ts.geometry.geom_type == "Point"]
         for asset_type in set(points_only["type"]):
-            print("Asset type: ", asset_type)
             df_filt = points_only[points_only["type"] == asset_type]
             text = [
                 "<br>".join([f"<b>{kk}:</b> {vv}" for kk, vv in rr.to_dict().items()][:-1])
@@ -366,6 +371,47 @@ class AssetSystem(System):
             fig.add_trace(trace)
         return fig
 
+    def _has_zero_zero_coords(self, geom):
+        if geom.is_empty or geom is None:
+            return False
+        if geom.geom_type == "Point":
+            return geom.x == 0 and geom.y == 0
+        elif geom.geom_type in ["Polygon", "MultiPolygon"]:
+            return any(x == 0 and y == 0 for x, y in geom.exterior.coords)
+        elif geom.geom_type == "LineString":
+            return any(x == 0 and y == 0 for x, y in geom.coords)
+        elif geom.geom_type.startswith("Multi") or geom.geom_type == "GeometryCollection":
+            return any(self._has_zero_zero_coords(g) for g in geom.geoms)
+        return False
+
+    def get_elevation_raster(self) -> Path:
+        """Download and clip elevation raster for the AssetSystem."""
+        if RASTER_DOWNLOAD_PATH.exists():
+            RASTER_DOWNLOAD_PATH.unlink()
+
+        coordinates = np.array(
+            [
+                (asset.latitude, asset.longitude)
+                for asset in self.get_components(Asset)
+                if asset.latitude and asset.latitude
+            ]
+        )
+
+        if len(coordinates):
+            lat_min, lat_max = float(coordinates[:, 0].min()), float(coordinates[:, 0].max())
+            lon_min, lon_max = float(coordinates[:, 1].min()), float(coordinates[:, 1].max())
+            bounds = (lon_min, lat_min, lon_max, lat_max)
+            logger.info(f"Downloading raster file to path: {RASTER_DOWNLOAD_PATH}")
+            logger.info(f"Clipping raster for bounds: {bounds}")
+            elevation.clip(bounds=bounds, output=str(RASTER_DOWNLOAD_PATH.name))
+            if not RASTER_DOWNLOAD_PATH.exists():
+                raise FileNotFoundError(f"File path {RASTER_DOWNLOAD_PATH} does not exist")
+        else:
+            logger.info(
+                "No assets found in the AssetSystem, no elevation raster will be downloaded."
+            )
+            return None
+
     def plot(
         self,
         show: bool = True,
@@ -373,20 +419,22 @@ class AssetSystem(System):
         map_type: MapType = MapType.SCATTER_MAP,
         style: PlotingStyle = PlotingStyle.CARTO_POSITRON,
         zoom_level: int = 11,
+        figure=go.Figure(),
     ):
         """Plot the AssetSystem."""
         plotting_object = getattr(go, map_type.value)
         gdf = self.to_gdf()
         gdf["timestamp"] = pd.to_datetime(gdf["timestamp"])
+        gdf = gdf[~gdf.geometry.apply(self._has_zero_zero_coords)]
         timestamps = sorted(gdf["timestamp"].unique())
-        fig = go.Figure()
+
         steps = []
 
         for i, ts in enumerate(timestamps):
             df_ts = gdf[gdf["timestamp"] == ts]
 
-            fig = self._add_node_traces(i, fig, df_ts, plotting_object)
-            fig = self._add_edge_traces(i, fig, df_ts, plotting_object)
+            figure = self._add_node_traces(i, figure, df_ts, plotting_object)
+            figure = self._add_edge_traces(i, figure, df_ts, plotting_object)
 
             steps.append(
                 dict(
@@ -398,7 +446,7 @@ class AssetSystem(System):
 
         sliders = [dict(active=0, pad={"t": 50}, steps=steps)]
 
-        fig.update_layout(
+        figure.update_layout(
             mapbox=dict(
                 style=style.value,
                 zoom=zoom_level,
@@ -409,6 +457,6 @@ class AssetSystem(System):
         )
 
         if show:
-            fig.show()
+            figure.show()
 
-        return fig
+        return figure

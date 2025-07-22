@@ -77,12 +77,12 @@ class HazardSystem(System):
         map_type: MapType = MapType.SCATTER_MAP,
         style: PlotingStyle = PlotingStyle.CARTO_POSITRON,
         zoom_level: int = 11,
+        figure=go.Figure(),
     ):
         timestamps = sorted(
             [model.timestamp for model in self.get_components(hz.BaseDisasterModel)]
         )
 
-        fig = go.Figure()
         steps = []
         for i, ts in enumerate(timestamps):
             hazards = self.get_components(
@@ -91,7 +91,7 @@ class HazardSystem(System):
             map_obj = getattr(go, map_type.value)
             num_traces = 0
             for hazard in hazards:
-                num_traces += hazard.plot(i, fig, map_obj)
+                num_traces += hazard.plot(i, figure, map_obj)
             vis = [j == i for j in range(len(timestamps))]
             result = [x for x in vis for _ in range(num_traces)]
             steps.append(dict(method="update", label=str(ts), args=[{"visible": result}]))
@@ -99,7 +99,7 @@ class HazardSystem(System):
         sliders = [dict(active=0, pad={"t": 50}, steps=steps)]
 
         if map_type == MapType.SCATTER_MAP:
-            fig.update_layout(
+            figure.update_layout(
                 map={
                     "style": style.value,
                     "zoom": zoom_level,
@@ -108,7 +108,7 @@ class HazardSystem(System):
                 showlegend=True if show_legend else False,
             )
         else:
-            fig.update_layout(
+            figure.update_layout(
                 geo=dict(
                     projection_scale=zoom_level,
                 ),
@@ -117,6 +117,6 @@ class HazardSystem(System):
             )
 
         if show:
-            fig.show()
+            figure.show()
 
-        return fig
+        return figure

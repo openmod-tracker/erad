@@ -32,4 +32,7 @@ class ProbabilityFunctionBuilder:
         assert isinstance(value, BaseQuantity), "Value must be a BaseQuantity"
 
         cdf = self.dist.cdf
-        return cdf(value.to(self.units).magnitude, *self.params)
+        try:
+            return cdf(value.to(self.units).magnitude, *self.params)
+        except Exception:
+            return cdf(value, *self.params)
