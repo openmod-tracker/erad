@@ -50,7 +50,10 @@ class TemperatureProbability(BaseProbabilityModel):
 class DistanceProbability(BaseProbabilityModel):
     distance: Annotated[
         Distance,
-        Field(..., description="Distance of asset from the source / boundary of a disaster event"),
+        Field(
+            Distance(-9999, "m"),
+            description="Distance of asset from the source / boundary of a disaster event",
+        ),
     ]
 
     @classmethod

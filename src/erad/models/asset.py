@@ -8,7 +8,9 @@ from geopy.distance import geodesic
 from shapely.geometry import Point
 from pyhigh import get_elevation
 from infrasys import Component
+from loguru import logger
 
+# from erad.constants import RASTER_DOWNLOAD_PATH
 from erad.quantities import Acceleration, Speed
 from erad.models.probability import (
     AccelerationProbability,
@@ -141,15 +143,16 @@ class AssetState(Component):
                     speed=area.water_velocity,
                     survival_probability=1,
                 )
-            else:
-                self.flood_depth = DistanceProbability(
-                    distance=Distance(-9999, "meter"),
-                    survival_probability=1,
-                )
-                self.flood_velocity = SpeedProbability(
-                    speed=Speed(0, "meter / second"),
-                    survival_probability=1,
-                )
+
+        if self.flood_depth is None and self.flood_velocity is None:
+            self.flood_depth = DistanceProbability(
+                distance=Distance(-9999, "meter"),
+                survival_probability=1,
+            )
+            self.flood_velocity = SpeedProbability(
+                speed=Speed(0, "meter / second"),
+                survival_probability=1,
+            )
 
     @computed_field
     @property
@@ -201,16 +204,26 @@ class Asset(Component):
     devices: list[UUID] = Field(
         [], description="List of UUIDs of devices associated with the asset"
     )
-    asset_type: AssetTypes
-    height: Distance = Field(..., gt=0, description="Height of the asset")
+    asset_type: AssetTypes = Field(..., description="Type of the asset")
+    height: Distance = Field(..., description="Height of the asset")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude in degrees")
     longitude: float = Field(..., ge=-180, le=180, description="Longitude in degrees")
-    asset_state: list[AssetState]
+    asset_state: list[AssetState] = Field(
+        ..., description="List of asset states associated with the asset"
+    )
+    _raster_handler: str | None = None
 
     @computed_field
     @property
     def elevation(self) -> Distance:
-        return Distance(get_elevation(lat=self.latitude, lon=self.longitude), "meter")
+        try:
+            elev = Distance(get_elevation(lat=self.latitude, lon=self.longitude), "meter")
+        except Exception:
+            logger.warning(
+                f"Error getting elevation information for asset {self.name} with coordinates {self.latitude}, {self.longitude}. Defaulting to 999 meters"
+            )
+            elev = Distance(999, "meter")
+        return elev
 
     def _get_asset_state_at_timestamp(self, timestamp: datetime) -> AssetState | None:
         for asset_state in self.asset_state:
@@ -240,9 +253,9 @@ class Asset(Component):
             raise (f"Unsupported hazard type {hazard_model.__class__.__name__}")
 
         self.calculate_probabilities(asset_state, frag_curves)
-
         if asset_state not in self.asset_state:
             self.asset_state.append(asset_state)
+        return asset_state
 
     def calculate_probabilities(self, asset_state: AssetState, frag_curves):
         fields = [

@@ -20,6 +20,7 @@ from erad.models.asset import Asset
 class HarzardSimulator:
     def __init__(self, asset_system: AssetSystem):
         self._asset_system = asset_system
+        self._asset_system.auto_add_composed_components = True
         self.assets: list[Asset] = list(asset_system.get_components(Asset))
 
     @classmethod
@@ -61,9 +62,11 @@ class HarzardSimulator:
                     hazard_type, filter_func=lambda x: x.timestamp == timestamp
                 ):
                     for asset in self.assets:
-                        asset.update_survival_probability(
+                        assset_state = asset.update_survival_probability(
                             timestamp, hazard_model, probability_models
                         )
+                        if not self._asset_system.has_component(assset_state):
+                            self._asset_system.add_component(assset_state)
 
 
 class HazardScenarioGenerator:
@@ -73,7 +76,7 @@ class HazardScenarioGenerator:
         hazard_system: HazardSystem,
         curve_set: str = "DEFAULT_CURVES",
     ):
-        self.assets = list(asset_system.iter_all_components())
+        self.assets = list(asset_system.get_components(Asset))
         self.harzard_simulator = HarzardSimulator(asset_system)
         self.harzard_simulator.run(hazard_system, curve_set)
 
