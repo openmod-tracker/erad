@@ -11,8 +11,11 @@ import numpy as np
 
 from erad.probability_builder import ProbabilityFunctionBuilder
 from erad.models.asset import AssetState
-from erad.enums import AssetTypes
-from erad.quantities import Speed
+from erad.enums import AssetTypes, PoleClass, PoleConstructionMaterial
+from erad.quantities import Speed, WindAngle, ConductorArea, PoleAge
+from erad.models.pole_coefficients import PoleCoefficients
+from erad.data import pole_coefficients_data
+from erad.models.custom_distributions import Darestani2019
 
 
 FRAGILITY_CURVE_TYPES = [
@@ -22,9 +25,18 @@ SUPPORTED_CONT_DIST = [name for name in dir(_continuous_distns) if not name.star
 
 
 class ProbabilityFunction(Component):
-    name: str = ""
-    distribution: Literal[*SUPPORTED_CONT_DIST]
+    name: str = ''
+    distribution: Union[str, Callable]
     parameters: list[float | BaseQuantity]
+
+    @field_validator('distribution')
+    def validate_distribution(cls, value):
+        if isinstance(value, str):
+            if value not in SUPPORTED_CONT_DIST:
+                raise ValueError(f"Unsupported distribution: {value}")
+        elif not callable(value):
+            raise ValueError("Distribution must be a supported name or a callable.")
+        return value
 
     @field_validator("parameters")
     def validate_parameters(cls, value):
@@ -43,10 +55,15 @@ class ProbabilityFunction(Component):
     @classmethod
     def example(cls) -> "ProbabilityFunction":
         return ProbabilityFunction(
-            distribution="norm",
-            parameters=[Speed(1.5, "m/s"), 2],
+            distribution="norm",  
+            parameters=[Speed(1.5, 'm/s'), 2],
         )
-
+    @classmethod
+    def example_parameterized(cls) -> "ProbabilityFunction":
+        return ProbabilityFunction(
+            distribution=Darestani2019,
+            parameters=[Speed(1.5, 'm/s'), WindAngle(90, 'degree'), ConductorArea(0.0005, 'm²'), PoleAge(30, 'year'), PoleCoefficients.example()],
+            )
 
 class FragilityCurve(Component):
     name: str = ""
@@ -60,7 +77,7 @@ class FragilityCurve(Component):
             prob_function=ProbabilityFunction.example(),
         )
 
-
+# Class for default curves
 class HazardFragilityCurves(Component):
     name: str = "DEFAULT_CURVES"
     asset_state_param: Literal[*FRAGILITY_CURVE_TYPES]
@@ -72,6 +89,9 @@ class HazardFragilityCurves(Component):
             asset_state_param="peak_ground_acceleration",
             curves=[FragilityCurve.example()],
         )
+# Class for custom fragility curves based on distributions defined in custom_distributions.py
+class ParameterizedFragilityCurve(Component):
+    name: str = ''
 
     def plot(
         self, file_path: Path, x_min: float = 0, x_max: float = None, number_of_points: int = 100

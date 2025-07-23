@@ -7,7 +7,7 @@ name = "NREL-erad"
 version="0.1.1"
 description = "Graph based scalable tool for computing energy resilience metrics for distribution systems."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12,<3.13"
 authors = [
     { name = "Kapil Duwadi", email = "kapil.duwadi@nrel.gov" },
     { name = "Aadil Latif", email = "aadil.altif@nrel.gov" },
@@ -71,6 +71,8 @@ doc = [
 [project.urls]
 Homepage = "https://github.com/nrel/erad"
 
+[tool.poetry]
+packages = [{ include = "erad", from = "src" }]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.

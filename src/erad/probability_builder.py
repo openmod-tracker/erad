@@ -1,38 +1,49 @@
 from infrasys import BaseQuantity
 import scipy.stats as stats
-
+import numpy as np
+from typing import Callable, Union
 
 class ProbabilityFunctionBuilder:
-    """Class containing utility fuctions for sceario definations."""
-
-    def __init__(self, dist, params: list[float | BaseQuantity]):
-        """Constructor for BaseScenario class.
+    """Class containing utility fuctions for scenario definations."""
+    
+    def __init__(self, dist: Union[str, Callable], params: list[float | BaseQuantity]):
+        """Constructor for ProbabilityFunctionBuilder.
 
         Args:
-            dist (str): Name of teh distribution. Should follow Scipy naming convention
-            params (list): A list of parameters for the chosen distribution function. See Scipy.stats documentation
+            dist (str or Callable): Name of the distribution (for scipy.stats) or a custom CDF function.
+            params (list): Parameters for the distribution or custom CDF.
         """
-        base_quantity = [p for p in params if isinstance(p, BaseQuantity)][0]
-        self.quantity = base_quantity.__class__
-        self.units = base_quantity.units
-        self.dist = getattr(stats, dist)
-        self.params = [p.magnitude if isinstance(p, BaseQuantity) else p for p in params]
-        return
+        self.is_custom = callable(dist)
+        self.dist = dist
+        self.params = params
 
+        if not self.is_custom:
+            # Scipy-style distribution: expect first param as BaseQuantity
+            self.quantity = params[0].__class__
+            self.units = params[0].units
+            self.dist = getattr(stats, dist)
+            self.params = [params[0].magnitude] + params[1:]
+        else:
+            # Custom function
+            pass
+    
     def sample(self):
-        """Sample the distribution"""
+        """Sample the distribution (only supported for Scipy distributions)."""
+        if self.is_custom:
+            raise NotImplementedError("Sampling is not supported for custom CDF functions.")
         return self.quantity(self.dist.rvs(*self.params, size=1)[0], self.units)
 
     def probability(self, value: BaseQuantity) -> float:
-        """Calculates survival probability of a given asset.
+        """Calculate survival probability of a given asset.
 
         Args:
-            value (float): value for vetor of interest. Will change with scenarions
+            value (BaseQuantity): The variable of interest (e.g., wind speed).
         """
         assert isinstance(value, BaseQuantity), "Value must be a BaseQuantity"
 
-        cdf = self.dist.cdf
-        try:
+        if self.is_custom:
+            # Unpack parameters and pass to custom CDF
+            return self.dist(*self.params)
+        else:
+            cdf = self.dist.cdf
             return cdf(value.to(self.units).magnitude, *self.params)
-        except Exception:
-            return cdf(value, *self.params)
