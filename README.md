@@ -11,7 +11,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/NREL/erad?style=flat-square)](https://github.com/NREL/erad/issues)
 ![GitHub top language](https://img.shields.io/github/languages/top/nrel/erad?style=flat-square)
 
-[Visit full documentation here.](https://nrel.github.io/erad/)
+[Visit full documentation here.](nrel-distribution-suites.github.io/erad/)
 
 Understanding the impact of disaster events on people's ability to access critical service is key to designing appropriate programs to minimize the overall impact. Flooded roads, downed power lines, flooded power substation etc. could impact access to critical services like electricity, food, health and more. The field of disaster modeling is still evolving and so is our understanding of how these events would impact our critical infrastructures such power grid, hospitals, groceries, banks etc.
 
