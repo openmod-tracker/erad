@@ -180,7 +180,7 @@ class AssetSystem(System):
     ):
         for asset_type, components in asset_map.items():
             for component in components:
-                lat, long = AssetSystem._get_component_coordinate(component)
+                long, lat = AssetSystem._get_component_coordinate(component)
                 if isinstance(component, gdc.DistributionBus):
                     list_of_assets[str(component.uuid)] = Asset(
                         name=component.name,
@@ -205,7 +205,7 @@ class AssetSystem(System):
         for asset_type, components in asset_map.items():
             for component in components:
                 if not isinstance(component, gdc.DistributionBus):
-                    lat, long = AssetSystem._get_component_coordinate(component)
+                    long, lat = AssetSystem._get_component_coordinate(component)
                     if hasattr(component, "buses"):
                         connections = [c.uuid for c in component.buses]
                     elif hasattr(component, "bus"):

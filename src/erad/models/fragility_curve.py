@@ -74,11 +74,16 @@ class HazardFragilityCurves(Component):
         )
 
     def plot(
-        self, file_path: Path, x_min: float = 0, x_max: float = None, number_of_points: int = 100
+        self,
+        file_path: Path | None = None,
+        x_min: float = 0,
+        x_max: float = 4,
+        number_of_points: int = 100,
     ):
         """Plot the fragility curves."""
-        file_path = Path(file_path)
-        assert file_path.suffix.lower() == ".html", "File path should be an HTML file"
+        if file_path is not None:
+            file_path = Path(file_path)
+            assert file_path.suffix.lower() == ".html", "File path should be an HTML file"
 
         if not self.curves:
             raise ValueError("No curves to plot")
@@ -113,4 +118,5 @@ class HazardFragilityCurves(Component):
         )
 
         fig.show()
-        fig.write_html(file_path)
+        if file_path:
+            fig.write_html(file_path)
