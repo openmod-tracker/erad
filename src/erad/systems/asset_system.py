@@ -70,12 +70,14 @@ class AssetSystem(System):
         return g
 
     @classmethod
-    def from_gdm(cls, dist_system: DistributionSystem) -> "AssetSystem":
+    def from_gdm(
+        cls, dist_system: DistributionSystem, flip_coordinates: bool = False
+    ) -> "AssetSystem":
         """Create a AssetSystem from a DistributionSystem."""
         asset_map = AssetSystem.map_asets(dist_system)
         # list_of_assets = AssetSystem._build_assets(asset_map)
         system = AssetSystem(auto_add_composed_components=True)
-        list_of_assets = system._build_assets(asset_map)
+        list_of_assets = system._build_assets(asset_map, flip_coordinates)
         system.add_components(*list_of_assets)
         return system
 
@@ -177,10 +179,14 @@ class AssetSystem(System):
         self,
         asset_map: dict[AssetTypes : list[gdc.DistributionComponentBase]],
         list_of_assets: dict[str, Asset],
+        flip_coordinates: bool = False,
     ):
         for asset_type, components in asset_map.items():
             for component in components:
-                long, lat = AssetSystem._get_component_coordinate(component)
+                if flip_coordinates:
+                    long, lat = AssetSystem._get_component_coordinate(component)
+                else:
+                    lat, long = AssetSystem._get_component_coordinate(component)
                 if isinstance(component, gdc.DistributionBus):
                     list_of_assets[str(component.uuid)] = Asset(
                         name=component.name,
@@ -197,21 +203,26 @@ class AssetSystem(System):
     def _build_assets(
         self,
         asset_map: dict[AssetTypes : list[gdc.DistributionComponentBase]],
+        flip_coordinates: bool = False,
     ) -> list[Asset]:
         list_of_assets: dict[str, Asset] = {}
 
-        self._prepopulate_bus_assets(asset_map, list_of_assets)
+        self._prepopulate_bus_assets(asset_map, list_of_assets, flip_coordinates)
 
         for asset_type, components in asset_map.items():
             for component in components:
                 if not isinstance(component, gdc.DistributionBus):
-                    long, lat = AssetSystem._get_component_coordinate(component)
+                    if flip_coordinates:
+                        long, lat = AssetSystem._get_component_coordinate(component)
+                    else:
+                        lat, long = AssetSystem._get_component_coordinate(component)
                     if hasattr(component, "buses"):
                         connections = [c.uuid for c in component.buses]
                     elif hasattr(component, "bus"):
                         connections = [component.bus.uuid]
                     else:
                         connections = []
+
                     list_of_assets[str(component.uuid)] = Asset(
                         name=component.name,
                         connections=connections,
