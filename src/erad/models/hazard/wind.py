@@ -70,7 +70,7 @@ class WindModel(BaseDisasterModel):
             )
         conn.close()
         geometry = [
-            Point(lat, lon)
+            Point(lon, lat)
             for lat, lon in zip(
                 hurricane_data["LAT (degrees_north)"], hurricane_data["LON (degrees_east)"]
             )
