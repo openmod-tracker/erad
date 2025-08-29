@@ -1,21 +1,20 @@
 from functools import cached_property
 from typing import Literal
 from pathlib import Path
-
+import pdb
 
 from infrasys import Component, BaseQuantity
 from scipy.stats import _continuous_distns
 from pydantic import field_validator
 import plotly.express as px
 import numpy as np
+from typing import Union
 
 from erad.probability_builder import ProbabilityFunctionBuilder
 from erad.models.asset import AssetState
-from erad.enums import AssetTypes, PoleClass, PoleConstructionMaterial
-from erad.quantities import Speed, WindAngle, ConductorArea, PoleAge
-from erad.models.pole_coefficients import PoleCoefficients
-from erad.data import pole_coefficients_data
-from erad.models.custom_distributions import Darestani2019
+from erad.enums import AssetTypes
+from erad.quantities import Speed
+from erad.models.custom_distributions import CUSTOM_DISTRIBUTIONS 
 
 
 FRAGILITY_CURVE_TYPES = [
@@ -26,45 +25,41 @@ SUPPORTED_CONT_DIST = [name for name in dir(_continuous_distns) if not name.star
 
 class ProbabilityFunction(Component):
     name: str = ''
-    distribution: Union[str, Callable]
+    distribution: str
     parameters: list[float | BaseQuantity]
+
 
     @field_validator('distribution')
     def validate_distribution(cls, value):
         if isinstance(value, str):
-            if value not in SUPPORTED_CONT_DIST:
+            if value not in SUPPORTED_CONT_DIST and value not in CUSTOM_DISTRIBUTIONS:
                 raise ValueError(f"Unsupported distribution: {value}")
-        elif not callable(value):
-            raise ValueError("Distribution must be a supported name or a callable.")
         return value
 
     @field_validator("parameters")
-    def validate_parameters(cls, value):
+    def validate_parameters(cls, value, info):
         if not any(isinstance(v, BaseQuantity) for v in value):
             raise ValueError("There should be atleast one BaseQuantity in the parameters")
-
-        units = set([v.units for v in value if isinstance(v, BaseQuantity)])
-        if not len(units) == 1:
-            raise ValueError("All BaseQuantities should have the same units")
+        
+        distribution = info.data.get('distribution')
+        if distribution in SUPPORTED_CONT_DIST:
+            units = set([v.units for v in value if isinstance(v, BaseQuantity)])
+            if len(units) > 1:
+                raise ValueError("All BaseQuantities should have the same units")
         return value
-
+   
     @cached_property
     def prob_model(self) -> ProbabilityFunctionBuilder:
         return ProbabilityFunctionBuilder(self.distribution, self.parameters)
-
+    
     @classmethod
     def example(cls) -> "ProbabilityFunction":
+        """Example for a scipy distribution."""
         return ProbabilityFunction(
             distribution="norm",  
             parameters=[Speed(1.5, 'm/s'), 2],
         )
-    @classmethod
-    def example_parameterized(cls) -> "ProbabilityFunction":
-        return ProbabilityFunction(
-            distribution=Darestani2019,
-            parameters=[Speed(1.5, 'm/s'), WindAngle(90, 'degree'), ConductorArea(0.0005, 'm²'), PoleAge(30, 'year'), PoleCoefficients.example()],
-            )
-
+    
 class FragilityCurve(Component):
     name: str = ""
     asset_type: AssetTypes
@@ -72,12 +67,12 @@ class FragilityCurve(Component):
 
     @classmethod
     def example(cls) -> "FragilityCurve":
+        """Example for a fragility curve with a scipy distribution."""
         return FragilityCurve(
             asset_type=AssetTypes.substation,
             prob_function=ProbabilityFunction.example(),
         )
 
-# Class for default curves
 class HazardFragilityCurves(Component):
     name: str = "DEFAULT_CURVES"
     asset_state_param: Literal[*FRAGILITY_CURVE_TYPES]
@@ -89,16 +84,18 @@ class HazardFragilityCurves(Component):
             asset_state_param="peak_ground_acceleration",
             curves=[FragilityCurve.example()],
         )
-# Class for custom fragility curves based on distributions defined in custom_distributions.py
-class ParameterizedFragilityCurve(Component):
-    name: str = ''
 
     def plot(
-        self, file_path: Path, x_min: float = 0, x_max: float = None, number_of_points: int = 100
+        self,
+        file_path: Path | None = None,
+        x_min: float = 0,
+        x_max: float = 4,
+        number_of_points: int = 100,
     ):
         """Plot the fragility curves."""
-        file_path = Path(file_path)
-        assert file_path.suffix.lower() == ".html", "File path should be an HTML file"
+        if file_path is not None:
+            file_path = Path(file_path)
+            assert file_path.suffix.lower() == ".html", "File path should be an HTML file"
 
         if not self.curves:
             raise ValueError("No curves to plot")
@@ -133,4 +130,5 @@ class ParameterizedFragilityCurve(Component):
         )
 
         fig.show()
-        fig.write_html(file_path)
+        if file_path:
+            fig.write_html(file_path)

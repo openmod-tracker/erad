@@ -48,7 +48,9 @@ class PoleClass(StrEnum):
     CLASS_7 = "Class 7"
 
 class PoleConstructionMaterial(StrEnum):
-    WOOD = "wood"
-    STEEL = "steel"
-    
+    WOOD = "wood" or "Wood" or "WOOD"
+    STEEL = "steel" or "Steel" or "STEEL"
 
+
+
+ 
