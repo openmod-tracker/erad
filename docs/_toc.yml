@@ -25,6 +25,10 @@ parts:
     - file: api/data_models
     - file: api/enumerations
     - file: api/quantities
+  - caption: Community Contributions
+    chapters:
+    - file: community/contribute
+    - file: community/code_of_contuct  
   - caption: Citations
     chapters:
     - file: reference/citations
