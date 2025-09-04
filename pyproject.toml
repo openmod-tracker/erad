@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "NREL-erad"
-version="0.1.4"
+version="0.1.5"
 description = "Graph based scalable tool for computing energy resilience metrics for distribution systems."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [
     { name = "Kapil Duwadi", email = "kapil.duwadi@nrel.gov" },
     { name = "Aadil Latif", email = "aadil.altif@nrel.gov" },
@@ -32,7 +32,12 @@ keywords = [
 classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
     "grid-data-models~=2.1.4",
@@ -70,7 +75,7 @@ doc = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/nrel/erad"
+Homepage = "https://github.com/NREL-Distribution-Suites/erad"
 
 
 [tool.ruff]
