@@ -3,7 +3,6 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/nrel-distribution-suites/erad/badge)](https://www.codefactor.io/repository/github/nrel-distribution-suites/erad) [![codecov](https://codecov.io/gh/NREL-Distribution-Suites/erad/branch/main/graph/badge.svg)](https://codecov.io/gh/NREL-Distribution-Suites/erad) [![GitHub license](https://img.shields.io/github/license/NREL/erad)](https://github.com/NREL/erad/blob/main/LICENSE.txt) [![GitHub issues](https://img.shields.io/github/issues/NREL/erad)](https://github.com/NREL/erad/issues) ![PyPI - Downloads](https://img.shields.io/pypi/dm/NREL-erad) [![Upload to PyPi](https://github.com/NREL-Distribution-Suites/erad/actions/workflows/publish.yml/badge.svg)](https://github.com/NREL-Distribution-Suites/erad/actions/workflows/publish.yml) [![deploy-book](https://github.com/NREL-Distribution-Suites/erad/actions/workflows/deploy.yml/badge.svg)](https://github.com/NREL-Distribution-Suites/erad/actions/workflows/deploy.yml) [![Pytest](https://github.com/NREL-Distribution-Suites/erad/actions/workflows/pull_request_tests.yml/badge.svg)](https://github.com/NREL-Distribution-Suites/erad/actions/workflows/pull_request_tests.yml)
 
 
-
 <p align="center"> 
 <img src="docs/_static/light.png" width="400" style="display:flex;justify-content:center;">
 </p>
