@@ -8,7 +8,7 @@ class ProbabilityFunctionBuilder:
         """Constructor for BaseScenario class.
 
         Args:
-            dist (str or custom distribution instance): 
+            dist (str or custom distribution instance):
                 - String name for scipy.stats distributions (See Scipy.stats documentation)
                 - String name for custom distributions (Call list_custom_distributions() to see available functions)
             params (list): Parameters for the distribution or custom function.
@@ -25,7 +25,7 @@ class ProbabilityFunctionBuilder:
             self.dist = custom_dist_instance # Use the provided custom distribution instance
         else:
             raise ValueError(f"Unsupported distribution: {dist}.")
-        
+
         return
 
     def sample(self):

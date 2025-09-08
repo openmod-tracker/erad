@@ -214,7 +214,7 @@ class Asset(Component):
         ..., description="List of asset states associated with the asset"
     )
     _raster_handler: str | None = None
-    
+
     @computed_field
     @property
     def elevation(self) -> Distance:
@@ -303,7 +303,7 @@ class Asset(Component):
 class DistributionPole(Asset):
     pole_class: PoleClass | None = Field(description="Class of the pole (only for distribution poles)")
     pole_material: PoleConstructionMaterial | None = Field(description="Construction material of the pole (only for distribution poles)")
-    wind_angle: WindAngle | None = Field(description="Angle between wind direction and pole") # Hazard property? 
+    wind_angle: WindAngle | None = Field(description="Angle between wind direction and pole") # Hazard property?
     conductor_area: ConductorArea | None = Field(description="Conductor area in m^2")
     pole_age: PoleAge | None = Field(description="Age of the pole in years")
     probability_dist: Literal[*CUSTOM_DISTRIBUTIONS] | None = Field(
@@ -315,7 +315,7 @@ class DistributionPole(Asset):
         if v != AssetTypes.distribution_poles:
             raise ValueError("Invalid asset type for DistributionPole, must be distribution_poles")
         return v
-    
+
     def get_valid_curve(self, frag_curves, field: str):
         if self.probability_dist and field == "wind_speed":
             custom_dist_instance = CUSTOM_DISTRIBUTIONS[self.probability_dist](self)

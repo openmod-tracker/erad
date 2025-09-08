@@ -1,20 +1,18 @@
 from functools import cached_property
 from typing import Literal
 from pathlib import Path
-import pdb
 
 from infrasys import Component, BaseQuantity
 from scipy.stats import _continuous_distns
 from pydantic import field_validator
 import plotly.express as px
 import numpy as np
-from typing import Union
 
 from erad.probability_builder import ProbabilityFunctionBuilder
 from erad.models.asset import AssetState
 from erad.enums import AssetTypes
 from erad.quantities import Speed
-from erad.models.custom_distributions import CUSTOM_DISTRIBUTIONS 
+from erad.models.custom_distributions import CUSTOM_DISTRIBUTIONS
 
 
 FRAGILITY_CURVE_TYPES = [
@@ -40,26 +38,26 @@ class ProbabilityFunction(Component):
     def validate_parameters(cls, value, info):
         if not any(isinstance(v, BaseQuantity) for v in value):
             raise ValueError("There should be atleast one BaseQuantity in the parameters")
-        
+
         distribution = info.data.get('distribution')
         if distribution in SUPPORTED_CONT_DIST:
             units = set([v.units for v in value if isinstance(v, BaseQuantity)])
             if len(units) > 1:
                 raise ValueError("All BaseQuantities should have the same units")
         return value
-   
+
     @cached_property
     def prob_model(self) -> ProbabilityFunctionBuilder:
         return ProbabilityFunctionBuilder(self.distribution, self.parameters)
-    
+
     @classmethod
     def example(cls) -> "ProbabilityFunction":
         """Example for a scipy distribution."""
         return ProbabilityFunction(
-            distribution="norm",  
+            distribution="norm",
             parameters=[Speed(1.5, 'm/s'), 2],
         )
-    
+
 class FragilityCurve(Component):
     name: str = ""
     asset_type: AssetTypes

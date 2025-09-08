@@ -34,7 +34,7 @@ class WindAngle(BaseQuantity):
     """Quantity representing angle between wind and conductor."""
 
     __base_unit__ = "degree"
-    
+
 class ConductorArea(BaseQuantity):
     """Quantity representing cross-sectional area of a conductor."""
 

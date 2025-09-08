@@ -37,7 +37,7 @@ class AssetTypes(IntEnum):
     @classmethod
     def has_asset(cls, asset):
         return asset in cls.__members__
-    
+
 class PoleClass(StrEnum):
     CLASS_1 = "Class 1"
     CLASS_2 = "Class 2"
@@ -53,4 +53,3 @@ class PoleConstructionMaterial(StrEnum):
 
 
 
- 
