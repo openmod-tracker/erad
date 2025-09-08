@@ -17,15 +17,15 @@ from erad.constants import HAZARD_TYPES
 from erad.models.asset import Asset
 
 
-class HarzardSimulator:
+class HazardSimulator:
     def __init__(self, asset_system: AssetSystem):
         self._asset_system = asset_system
         self._asset_system.auto_add_composed_components = True
         self.assets: list[Asset] = list(asset_system.get_components(Asset))
 
     @classmethod
-    def from_gdm(cls, dist_system: DistributionSystem) -> "HarzardSimulator":
-        """Create a HarzardSimulator from a DistributionSystem."""
+    def from_gdm(cls, dist_system: DistributionSystem) -> "HazardSimulator":
+        """Create a HazardSimulator from a DistributionSystem."""
         asset_system = AssetSystem.from_gdm(dist_system)
         return cls(asset_system)
 
@@ -50,7 +50,7 @@ class HarzardSimulator:
 
         if not probability_models:
             logger.warning(
-                "No HazardFragilityCurves definations found in the passed HazardSystem using default curve definations"
+                "No HazardFragilityCurves definitions found in the passed HazardSystem, using default curve definitions"
             )
             probability_models = DEFAULT_FRAGILTY_CURVES
 
@@ -77,8 +77,8 @@ class HazardScenarioGenerator:
         curve_set: str = "DEFAULT_CURVES",
     ):
         self.assets = list(asset_system.get_components(Asset))
-        self.harzard_simulator = HarzardSimulator(asset_system)
-        self.harzard_simulator.run(hazard_system, curve_set)
+        self.hazard_simulator = HazardSimulator(asset_system)
+        self.hazard_simulator.run(hazard_system, curve_set)
 
     def _sample(self, scenario_name: str) -> list[TrackedChange]:
         outaged_assets = []

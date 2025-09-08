@@ -7,11 +7,11 @@ from shapely.geometry import Point
 
 from erad.systems.hazard_system import HazardSystem
 from erad.models.hazard import EarthQuakeModel
-from erad.runner import HarzardSimulator
+from erad.runner import HazardSimulator
 
 
 def test_gdm_model_earthquake(gdm_system: DistributionSystem):
-    hazard_scenario = HarzardSimulator.from_gdm(gdm_system)
+    hazard_scenario = HazardSimulator.from_gdm(gdm_system)
     buses: list[DistributionBus] = list(gdm_system.get_components(DistributionBus))
     buses = sorted(buses, key=lambda b: b.name)
     earthquake = EarthQuakeModel(
@@ -28,7 +28,7 @@ def test_gdm_model_earthquake(gdm_system: DistributionSystem):
 
 def test_asset_graph_undirected(gdm_system: DistributionSystem):
     dist_graph = gdm_system.get_undirected_graph()
-    hazard_scenario = HarzardSimulator.from_gdm(gdm_system)
+    hazard_scenario = HazardSimulator.from_gdm(gdm_system)
     graph = hazard_scenario.asset_system.get_undirected_graph()
     assert (
         dist_graph.number_of_edges() == graph.number_of_edges()
@@ -40,7 +40,7 @@ def test_asset_graph_undirected(gdm_system: DistributionSystem):
 
 def test_asset_graph_directed(gdm_system: DistributionSystem):
     dist_graph = gdm_system.get_directed_graph()
-    hazard_scenario = HarzardSimulator.from_gdm(gdm_system)
+    hazard_scenario = HazardSimulator.from_gdm(gdm_system)
     graph = hazard_scenario.asset_system.get_dircted_graph()
 
     assert (

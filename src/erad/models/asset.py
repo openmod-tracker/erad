@@ -119,14 +119,14 @@ class AssetState(Component):
         b = 10
 
         a = math.log(b) / (r_max - r_v_max)
-        m = (1 / r_v_max) * math.log(k / (k + 1))
+        m = (1 / r_v_max) * math.log(k / (k - 1))
 
         if r >= 0 and r < r_v_max:
             wind_speed = k * v_max * (1 - math.exp(-m * r))
         elif r >= r_v_max and r < r_max:
             wind_speed = v_max * math.exp(-a * (r - r_v_max))
         else:
-            wind_speed = 0
+            wind_speed = Speed(0, "knots")
 
         self.wind_speed = SpeedProbability(
             speed=wind_speed.to("miles/hour"),

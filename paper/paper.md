@@ -1,10 +1,10 @@
 ---
-title: 'ERAD: A Graph-Based Tool for Energy Resilience Analysis of electric Distribution systems.'
+title: 'ERAD: ERAD: A Graph-Based Tool for Energy Resilience Analysis of Electric Distribution Systems'
 tags:
   - python
   - neo4j
   - power distribution systems
-  - energy resilince
+  - energy resilience
   - disaster modeling
 authors:
   - name: Kapil Duwadi
@@ -43,7 +43,7 @@ There have been some recent efforts that consider resilience at the distribution
 
 # Implementation Overview
 
-ERAD is a free, open-source Python toolkit for computing energy resilience measures in the face of hazards like earthquakes and flooding for distribution systems. It uses graph-based analysis to perform computation down to the induvisual households. Users start by defining hazard models either manually or using historic extreme events. Next, they define all distribution system assets of interest. Outage scenarios in ERAD are generated based on Monte Carlo samples across the individual equipment survival probabilities. Finally, ERAD computes a range of energy metrics, including outage probability, outage duration, and outage impact on critical services.
+ERAD is a free, open-source Python toolkit for computing energy resilience measures in the face of hazards like earthquakes and flooding for distribution systems. It uses graph-based analysis to perform computation down to the individual households. Users start by defining hazard models either manually or using historic extreme events. Next, they define all distribution system assets of interest. Outage scenarios in ERAD are generated based on Monte Carlo samples across the individual equipment survival probabilities. Finally, ERAD computes a range of energy metrics, including outage probability, outage duration, and outage impact on critical services.
 
 ERAD is now part of the [Grid-Data-Models](https://nrel-distribution-suites.github.io/grid-data-models/intro.html) (GDM) ecosystem! This integration enables ERAD to run resilience analyses directly on GDM-based distribution systems, improving interoperability with other distribution-focused tools and streamlining the development of automated workflows. 
 

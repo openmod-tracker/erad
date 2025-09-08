@@ -1,5 +1,5 @@
 from erad.models.asset import Asset
-from erad.runner import HarzardSimulator
+from erad.runner import HazardSimulator
 from erad.systems.asset_system import AssetSystem
 from erad.systems.hazard_system import HazardSystem
 
@@ -12,20 +12,20 @@ def get_asset_system() -> AssetSystem:
 
 
 def test_earthquake_simulation():
-    hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
+    hazard_scenario = HazardSimulator(asset_system=get_asset_system())
     hazard_scenario.run(hazard_system=HazardSystem.earthquake_example())
 
 
 def test_fire_simulation():
-    hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
+    hazard_scenario = HazardSimulator(asset_system=get_asset_system())
     hazard_scenario.run(hazard_system=HazardSystem.fire_example())
 
 
 def test_wind_simulation():
-    hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
+    hazard_scenario = HazardSimulator(asset_system=get_asset_system())
     hazard_scenario.run(hazard_system=HazardSystem.wind_example())
 
 
 def test_flood_simulation():
-    hazard_scenario = HarzardSimulator(asset_system=get_asset_system())
+    hazard_scenario = HazardSimulator(asset_system=get_asset_system())
     hazard_scenario.run(hazard_system=HazardSystem.flood_example())

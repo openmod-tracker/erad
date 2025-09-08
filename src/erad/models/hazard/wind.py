@@ -70,7 +70,7 @@ class WindModel(BaseDisasterModel):
             )
         conn.close()
         geometry = [
-            Point(lat, lon)
+            Point(lon, lat)
             for lat, lon in zip(
                 hurricane_data["LAT (degrees_north)"], hurricane_data["LON (degrees_east)"]
             )
@@ -104,8 +104,8 @@ class WindModel(BaseDisasterModel):
     ) -> int:
         figure.add_trace(
             map_obj(
-                lat=[self.center.x],
-                lon=[self.center.y],
+                lat=[self.center.y],
+                lon=[self.center.x],
                 mode="markers",
                 marker=dict(
                     size=[self.radius_of_closest_isobar.magnitude / 5],
@@ -119,8 +119,8 @@ class WindModel(BaseDisasterModel):
 
         figure.add_trace(
             map_obj(
-                lat=[self.center.x],
-                lon=[self.center.y],
+                lat=[self.center.y],
+                lon=[self.center.x],
                 mode="markers",
                 marker=dict(
                     size=[self.radius_of_max_wind.magnitude / 5],

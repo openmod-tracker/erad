@@ -132,3 +132,5 @@ class HazardFragilityCurves(Component):
         fig.show()
         if file_path:
             fig.write_html(file_path)
+
+        return fig
