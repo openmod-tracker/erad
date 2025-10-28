@@ -51,7 +51,7 @@ For outage simulations, ERAD uses asset fragility curves [@Jessica], [@kongar_se
 
 # Example Usage
 
-ERAD has been used as part of multiple high-impact research efforts. Specifically, it was used to analyze energy access to critical services for 8 neighborhoods in the city of Los Angeles as it transitions to a 100% renewable energy future as part of the LA100 Equity Strategies project [@osti_2221829]. For transmission distribution cosimulation after a flooding disaster, ERAD has also been used to generate distribution system outage scenarios as a part of North American Energy Resilience Model [NAERM](https://www.energy.gov/oe/north-american-energy-resilience-model-naerm) studies.
+ERAD has been used as part of multiple high-impact research efforts. Specifically, it was used to analyze energy access to critical services for 8 neighborhoods in the city of Los Angeles as it transitions to a 100% renewable energy future as part of the LA100 Equity Strategies project [@la100-es-report]. For transmission distribution cosimulation after a flooding disaster, ERAD has also been used to generate distribution system outage scenarios as a part of North American Energy Resilience Model [@narem] studies.
 
 # Next Steps
 
